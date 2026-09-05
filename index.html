@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Nuestra Boda — Juan Pablo &amp; Juliana</title>
+<meta name="description" content="Invitación a la boda de Juan Pablo y Juliana. 21 de noviembre de 2026, Rooftop Qantic, Medellín." />
+<meta name="theme-color" content="#F7F2E9" />
+<meta property="og:title" content="Nuestra Boda — Juan Pablo &amp; Juliana" />
+<meta property="og:description" content="21 de noviembre de 2026 · Rooftop Qantic, Medellín" />
+<meta property="og:image" content="assets/opt/pareja.jpg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Pinyon+Script&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="is-sealed">
+
+<!-- Sobre / apertura -->
+<div class="envelope-scene" id="envelope-scene">
+  <div class="envelope-glow" aria-hidden="true"></div>
+  <button class="envelope" id="envelope" type="button" aria-label="Abrir la invitación">
+    <span class="envelope__body" aria-hidden="true">
+      <span class="envelope__letter">
+        <span class="envelope__letter-inner">
+          <span class="envelope__monogram">J<em>&amp;</em>J</span>
+          <span class="envelope__letter-rule"></span>
+          <span class="envelope__letter-date">21 · 11 · 2026</span>
+        </span>
+      </span>
+      <span class="envelope__front"></span>
+      <span class="envelope__flap"></span>
+      <span class="envelope__seal">
+        <svg viewBox="0 0 64 64" aria-hidden="true">
+          <circle cx="32" cy="32" r="30" class="seal-disc" />
+          <circle cx="32" cy="32" r="25" class="seal-ring" />
+          <text x="32" y="41" text-anchor="middle" class="seal-text">JJ</text>
+        </svg>
+      </span>
+    </span>
+    <span class="envelope__hint">Toca para abrir</span>
+  </button>
+</div>
+
+<!-- Invitación -->
+<main class="invitation" id="invitation">
+
+  <!-- 1. Portada -->
+  <header class="hero" id="inicio">
+    <img class="hero__floral hero__floral--top" src="assets/opt/floral4.webp" alt="" aria-hidden="true" />
+    <div class="hero__inner">
+      <p class="hero__eyebrow">Con la bendición de Dios y de nuestras familias</p>
+      <h1 class="hero__title">Nuestra Boda</h1>
+      <svg class="flourish" viewBox="0 0 320 40" aria-hidden="true">
+        <path class="flourish__line" d="M4 20 H126" />
+        <path class="flourish__line" d="M194 20 H316" />
+        <path class="flourish__leaf" d="M160 4 c12 8 18 16 18 22 c0 6 -7 10 -18 10 c-11 0 -18 -4 -18 -10 c0 -6 6 -14 18 -22 Z" />
+        <path class="flourish__stem" d="M160 8 V36" />
+      </svg>
+      <p class="hero__names">Juan&nbsp;Pablo <em>&amp;</em> Juliana</p>
+      <p class="hero__date">Sábado 21 de noviembre de 2026 · Medellín</p>
+    </div>
+    <img class="hero__floral hero__floral--bottom" src="assets/opt/roses2.webp" alt="" aria-hidden="true" />
+    <span class="hero__scroll" aria-hidden="true"><span></span></span>
+  </header>
+
+  <!-- 2. Cuenta regresiva -->
+  <section class="section countdown" aria-labelledby="countdown-title">
+    <div class="wrap reveal">
+      <p class="kicker">Reserva la fecha</p>
+      <h2 class="section__title" id="countdown-title">Faltan</h2>
+      <div class="clock" id="clock">
+        <div class="clock__unit"><span class="clock__num" data-unit="dias">00</span><span class="clock__label">días</span></div>
+        <span class="clock__sep" aria-hidden="true">:</span>
+        <div class="clock__unit"><span class="clock__num" data-unit="horas">00</span><span class="clock__label">horas</span></div>
+        <span class="clock__sep" aria-hidden="true">:</span>
+        <div class="clock__unit"><span class="clock__num" data-unit="minutos">00</span><span class="clock__label">minutos</span></div>
+        <span class="clock__sep" aria-hidden="true">:</span>
+        <div class="clock__unit"><span class="clock__num" data-unit="segundos">00</span><span class="clock__label">segundos</span></div>
+      </div>
+      <p class="visually-hidden" id="clock-sr" aria-live="polite"></p>
+      <p class="countdown__date">21 de noviembre, 2026</p>
+      <p class="countdown__time">4:00 p.&nbsp;m.</p>
+    </div>
+  </section>
+
+  <!-- 3. Foto + versículo -->
+  <section class="photo" aria-label="Nosotros">
+    <figure class="photo__frame reveal">
+      <img class="photo__img" src="assets/opt/pareja.webp" alt="Juan Pablo y Juliana el día de la propuesta" loading="lazy" decoding="async" />
+      <img class="photo__rose" src="assets/opt/roses1.webp" alt="" aria-hidden="true" loading="lazy" />
+      <figcaption class="photo__verse">
+        <p class="verse">Las muchas aguas no podrán apagar el amor, ni lo ahogarán los ríos.</p>
+        <cite class="verse__ref">Cantares 8:7</cite>
+      </figcaption>
+    </figure>
+  </section>
+
+  <!-- 4. Ubicación -->
+  <section class="section section--cream location" aria-labelledby="location-title">
+    <img class="deco deco--candle" src="assets/opt/candle1.webp" alt="" aria-hidden="true" loading="lazy" />
+    <div class="wrap reveal">
+      <p class="kicker">Dónde</p>
+      <h2 class="section__title" id="location-title">Ubicación</h2>
+      <div class="card card--location">
+        <p class="venue">Rooftop Qantic</p>
+        <p class="address">Cq. 3 #71-40, Laureles&nbsp;- Estadio<br />Medellín, Antioquia</p>
+        <a class="btn" href="https://www.google.com/maps/search/?api=1&amp;query=Rooftop+Qantic+Cq.+3+%2371-40+Laureles+Estadio+Medell%C3%ADn" target="_blank" rel="noopener">Ver ubicación</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. Código de vestimenta -->
+  <section class="section section--sage dresscode" aria-labelledby="dress-title">
+    <div class="wrap reveal">
+      <p class="kicker">Para la ocasión</p>
+      <h2 class="section__title" id="dress-title">Código de vestimenta</h2>
+      <p class="dresscode__value">Formal</p>
+      <div class="dresscode__icons">
+        <figure class="silhouette">
+          <svg viewBox="0 0 120 200" aria-hidden="true">
+            <g class="line">
+              <circle cx="60" cy="26" r="12" />
+              <path d="M48 34 c-4 6 -6 12 -6 18 l-6 10" />
+              <path d="M72 34 c4 6 6 12 6 18 l6 10" />
+              <path d="M49 40 h22 l6 26 c-8 5 -26 5 -34 0 Z" />
+              <path d="M43 66 L22 176 c24 8 52 8 76 0 L77 66" />
+              <path d="M24 176 c22 6 50 6 72 0" />
+              <path d="M60 46 v130" />
+            </g>
+          </svg>
+          <figcaption>Ellas</figcaption>
+        </figure>
+        <span class="dresscode__divider" aria-hidden="true"></span>
+        <figure class="silhouette">
+          <svg viewBox="0 0 120 200" aria-hidden="true">
+            <g class="line">
+              <circle cx="60" cy="26" r="12" />
+              <path d="M52 38 h16" />
+              <path d="M52 38 L36 50 c-6 4 -8 10 -8 16 v40" />
+              <path d="M68 38 L84 50 c6 4 8 10 8 16 v40" />
+              <path d="M52 38 L60 60 L68 38" />
+              <path d="M60 60 v18" />
+              <circle class="dot" cx="60" cy="90" r="2.5" />
+              <circle class="dot" cx="60" cy="102" r="2.5" />
+              <path d="M32 106 v76 h24 l4 -76" />
+              <path d="M88 106 v76 H64 l-4 -76" />
+            </g>
+          </svg>
+          <figcaption>Ellos</figcaption>
+        </figure>
+      </div>
+      <p class="dresscode__note">Te sugerimos reservar el blanco para la novia.</p>
+    </div>
+  </section>
+
+  <!-- 6. Itinerario -->
+  <section class="section timeline-section" aria-labelledby="timeline-title">
+    <div class="wrap">
+      <div class="reveal">
+        <p class="kicker">El día</p>
+        <h2 class="section__title" id="timeline-title">Itinerario</h2>
+      </div>
+      <ol class="timeline">
+        <li class="timeline__item reveal">
+          <span class="timeline__dot" aria-hidden="true"></span>
+          <p class="timeline__time">4:00 p.&nbsp;m.</p>
+          <p class="timeline__name">Bienvenida</p>
+          <p class="timeline__desc">Recibimos a nuestros invitados en el rooftop.</p>
+        </li>
+        <li class="timeline__item reveal">
+          <span class="timeline__dot" aria-hidden="true"></span>
+          <p class="timeline__time">5:00 p.&nbsp;m.</p>
+          <p class="timeline__name">Ceremonia</p>
+          <p class="timeline__desc">El momento por el que estamos todos aquí.</p>
+        </li>
+        <li class="timeline__item reveal">
+          <span class="timeline__dot" aria-hidden="true"></span>
+          <p class="timeline__time">6:00 p.&nbsp;m.</p>
+          <p class="timeline__name">Cóctel</p>
+          <p class="timeline__desc">Brindis y fotos con el atardecer de Medellín.</p>
+        </li>
+        <li class="timeline__item reveal">
+          <span class="timeline__dot" aria-hidden="true"></span>
+          <p class="timeline__time">7:30 p.&nbsp;m.</p>
+          <p class="timeline__name">Cena y celebración</p>
+          <p class="timeline__desc">Mesa servida, música y baile hasta tarde.</p>
+        </li>
+      </ol>
+      <img class="deco deco--candle-sm" src="assets/opt/candle2.webp" alt="" aria-hidden="true" loading="lazy" />
+    </div>
+  </section>
+
+  <!-- 7. Confirmación -->
+  <section class="section rsvp" aria-labelledby="rsvp-title">
+    <div class="rsvp__bg" aria-hidden="true"></div>
+    <div class="wrap reveal">
+      <p class="kicker">Te esperamos</p>
+      <h2 class="section__title" id="rsvp-title">Confirmar asistencia</h2>
+      <p class="rsvp__text">Agradecemos que confirmes tu asistencia antes del <strong>30 de septiembre</strong>. De no obtener respuesta de tu parte se tomará como rechazada la asistencia.</p>
+      <a class="btn btn--lg" href="https://wa.link/dgonhr" target="_blank" rel="noopener">Confirmar asistencia</a>
+      <p class="rsvp__hint">Se abre WhatsApp para responderle a los novios.</p>
+    </div>
+  </section>
+
+  <!-- 8. Cierre -->
+  <footer class="closing">
+    <img class="closing__divider" src="assets/opt/rosesdivider.webp" alt="" aria-hidden="true" loading="lazy" />
+    <div class="wrap reveal">
+      <p class="closing__text">Esperamos contar con su presencia.<br />¡Muchas gracias!</p>
+      <p class="closing__names">Juan&nbsp;Pablo <em>&amp;</em> Juliana</p>
+      <p class="closing__date">21 · 11 · 2026</p>
+    </div>
+    <img class="closing__vine" src="assets/opt/floral3.webp" alt="" aria-hidden="true" loading="lazy" />
+  </footer>
+
+</main>
+
+<script src="js/main.js"></script>
+</body>
+</html>
