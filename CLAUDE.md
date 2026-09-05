@@ -66,6 +66,11 @@ por minuto, no cada segundo. Al llegar a cero se detiene el intervalo y cambia e
 `revelar()` — que solo se llama después de abrir el sobre. Cada elemento se deja de observar al
 aparecer.
 
+**Flotación de los florales.** `float-a`/`float-b` animan la propiedad `translate`, no `transform`,
+porque varios adornos llevan su propio `transform` estático (`rotate`, `scaleX(-1)`). Si la
+animación vuelve a usar `transform`, los elementos sin transform propio heredan el del keyframe y
+aparecen espejados o inclinados.
+
 **Movimiento reducido.** El bloque `@media (prefers-reduced-motion: reduce)` anula duración *y
 retardo* de animaciones y transiciones. Si se agrega un `transition-delay` nuevo, hay que confirmar
 que ese bloque lo neutraliza; de lo contrario el contenido se queda invisible.
@@ -76,18 +81,17 @@ Las bandas no tienen bordes: cada sección **entra con el color con el que sale 
 que los fondos son degradados verticales encadenados y el color final de una sección es un contrato
 con la siguiente. La cadena, de arriba abajo:
 
-`#E9F0DA` (portada) → `#FBF8F2` → `#F7F2E9` (foto) → `#F5F6EC` → `#F2F3E7` → `#F7F0E3` → `#F1E7D6` → `--sage-mist`
+`#E9F0DA` (portada) → `#FBF8F2` → `#F7F2E9` (versículo y Ubicación) → `#F5F6EC` → `#F2F3E7` →
+`#F7F0E3` → `#F1E7D6` → `--sage-mist`
 
-Si se cambia el fondo de una sección hay que ajustar también el primer stop de la siguiente. Dos
-casos especiales:
-
-- `.photo__frame::before` difumina el borde superior de la foto contra la banda anterior.
-- `.location::before` continúa la sombra oscura del pie de la foto durante ~110 px, para que el
-  degradado del versículo no termine en un corte seco contra el crema.
+Si se cambia el fondo de una sección hay que ajustar también el primer stop de la siguiente.
 
 Para verificar una costura, muestrear píxeles arriba y abajo del borde con Playwright + Pillow; un
 salto mayor a ~3 por canal se nota a simple vista. El overlay `.rsvp::after` tiene que repetir los
 mismos colores de borde que `.rsvp`, o vuelve a endurecer la costura.
+
+La sección 3 es solo el versículo sobre crema, sin foto: el resplandor cálido de `.verse-section`
+es un radial que muere antes de los bordes, así que no participa en la cadena.
 
 ## Imágenes
 

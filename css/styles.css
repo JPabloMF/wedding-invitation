@@ -450,12 +450,12 @@ body.is-open .invitation{ opacity: 1; }
   animation: float-b 13s ease-in-out infinite;
 }
 @keyframes float-a{
-  0%,100%{ transform: rotate(8deg) translateY(0); }
-  50%    { transform: rotate(8deg) translateY(-9px); }
+  0%,100%{ translate: 0 0; }
+  50%    { translate: 0 -9px; }
 }
 @keyframes float-b{
-  0%,100%{ transform: scaleX(-1) translateY(0); }
-  50%    { transform: scaleX(-1) translateY(7px); }
+  0%,100%{ translate: 0 0; }
+  50%    { translate: 0 7px; }
 }
 
 .hero__scroll{
@@ -546,70 +546,34 @@ body.is-open .invitation{ opacity: 1; }
   margin: 0;
 }
 
-/* ---------- 3. Foto ---------- */
+/* ---------- 3. Versículo ---------- */
 
-.photo{
-  background: var(--cream-warm);
-  padding: 0;
-}
-.photo__frame{
-  position: relative;
-  margin: 0;
-  overflow: hidden;
-  isolation: isolate;
-}
-.photo__frame::before{
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: clamp(60px, 12vw, 110px);
-  z-index: 1;
-  background: linear-gradient(to bottom, var(--cream-warm) 0%, rgba(247,242,233,0) 100%);
-}
-.photo__img{
-  width: 100%;
-  height: clamp(420px, 78svh, 680px);
-  object-fit: cover;
-  object-position: center 42%;
-  filter: saturate(.92) sepia(.12);
-}
-.photo__frame::after{
-  content: "";
-  position: absolute; inset: 0;
-  background: linear-gradient(
-    to bottom,
-    rgba(74,64,52,.12) 0%,
-    rgba(74,64,52,0) 28%,
-    rgba(60,52,40,.55) 68%,
-    rgba(48,42,32,.86) 100%);
-}
-.photo__rose{
-  position: absolute;
-  top: -8%;
-  left: -12%;
-  width: min(240px, 52vw);
-  z-index: 1;
-  opacity: .92;
-  animation: float-a 12s ease-in-out infinite;
-  transform: rotate(8deg);
-}
-.photo__verse{
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  z-index: 2;
-  padding: 0 var(--pad) clamp(2rem, 7vw, 3.4rem);
+.verse-section{
+  padding-block: clamp(4.4rem, 12vw, 7rem);
+  background:
+    radial-gradient(78% 62% at 50% 48%, rgba(255,232,190,.42) 0%, rgba(255,232,190,0) 72%),
+    var(--cream-warm);
   text-align: center;
-  color: #fff;
 }
+.verse-section .wrap{ margin: 0 auto; }
+
 .verse{
   font-family: var(--serif);
   font-style: italic;
   font-weight: 300;
-  font-size: clamp(1.25rem, .95rem + 2vw, 1.85rem);
-  line-height: 1.45;
-  max-width: 26rem;
-  margin: 0 auto .8rem;
-  text-shadow: 0 2px 14px rgba(30,24,16,.55);
+  font-size: clamp(1.5rem, 1.05rem + 3vw, 2.4rem);
+  line-height: 1.4;
+  color: var(--ink);
+  max-width: 22rem;
+  margin: 0 auto;
+  text-wrap: balance;
+}
+.verse__rule{
+  display: block;
+  width: 46px; height: 1px;
+  margin: clamp(1.6rem, 5vw, 2.2rem) auto clamp(1rem, 3vw, 1.4rem);
+  background: var(--tan);
+  opacity: .8;
 }
 .verse__ref{
   display: block;
@@ -619,24 +583,20 @@ body.is-open .invitation{ opacity: 1; }
   letter-spacing: .3em;
   text-indent: .3em;
   text-transform: uppercase;
-  color: rgba(255,255,255,.82);
+  color: var(--tan-deep);
+}
+
+.deco--verse{
+  top: clamp(.6rem, 3vw, 1.6rem);
+  left: -9%;
+  width: min(186px, 38vw);
+  opacity: .72;
+  transform: rotate(6deg);
+  animation: float-a 12s ease-in-out infinite;
 }
 
 /* ---------- 4. Ubicación ---------- */
 
-.location{ isolation: isolate; }
-.location::before{
-  content: "";
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: clamp(70px, 14vw, 120px);
-  z-index: 0;
-  background: linear-gradient(to bottom,
-    rgba(48,42,32,.86) 0%,
-    rgba(64,56,44,.42) 34%,
-    rgba(120,108,88,.14) 62%,
-    rgba(247,242,233,0) 100%);
-}
 .location .wrap{ text-align: center; }
 
 .card--location{
@@ -658,16 +618,134 @@ body.is-open .invitation{ opacity: 1; }
   margin: 0 0 2rem;
 }
 
-.deco{ position: absolute; pointer-events: none; }
+.deco{ position: absolute; pointer-events: none; z-index: 0; }
+
+/* Portada */
+.deco--hero-gypso{
+  right: -16%;
+  bottom: 4%;
+  width: min(235px, 54vw);
+  opacity: .62;
+  transform: scaleX(-1) rotate(-4deg);
+  animation: float-b 14s ease-in-out infinite;
+}
+
+/* Cuenta regresiva */
+.deco--count-gypso{
+  top: 3%;
+  right: -16%;
+  width: min(215px, 50vw);
+  opacity: .45;
+  transform: scaleX(-1) rotate(4deg);
+  animation: float-a 15s ease-in-out infinite;
+}
+.deco--count-candle{
+  left: 5%;
+  bottom: 9%;
+  width: min(72px, 17vw);
+  opacity: .9;
+  animation: float-b 11s ease-in-out infinite;
+}
+
+/* Versículo */
+.deco--verse-gypso{
+  right: -14%;
+  bottom: 6%;
+  width: min(205px, 46vw);
+  opacity: .45;
+  transform: scaleX(-1);
+  animation: float-b 13s ease-in-out infinite;
+}
+.deco--verse-candle{
+  left: 7%;
+  bottom: 11%;
+  width: min(62px, 15vw);
+  opacity: .85;
+  animation: float-a 12s ease-in-out infinite;
+}
+
+/* Ubicación */
+.deco--loc-leaf{
+  top: 3%;
+  left: -9%;
+  width: min(155px, 36vw);
+  opacity: .55;
+  transform: scaleX(-1) rotate(-10deg);
+  animation: float-a 13s ease-in-out infinite;
+}
+
+/* Vestimenta */
+.deco--dress-leaf-a{
+  top: 2%;
+  left: -13%;
+  width: min(195px, 44vw);
+  opacity: .6;
+  transform: scaleX(-1);
+  animation: float-b 12s ease-in-out infinite;
+}
+.deco--dress-leaf-b{
+  bottom: 1%;
+  right: -11%;
+  width: min(175px, 40vw);
+  opacity: .55;
+  transform: rotate(10deg);
+  animation: float-a 14s ease-in-out infinite;
+}
+
+/* Itinerario */
+.deco--time-candle{
+  top: 1.6rem;
+  right: 7%;
+  width: min(68px, 16vw);
+  opacity: .85;
+  animation: float-a 12s ease-in-out infinite;
+}
+.deco--time-gypso{
+  bottom: 12%;
+  left: -18%;
+  width: min(200px, 46vw);
+  opacity: .4;
+  animation: float-b 15s ease-in-out infinite;
+}
+
+/* Confirmación */
+.deco--rsvp-roses{
+  top: -1%;
+  left: -13%;
+  width: min(200px, 46vw);
+  opacity: .6;
+  z-index: 2;
+  animation: float-a 13s ease-in-out infinite;
+}
+.deco--rsvp-candle{
+  bottom: 7%;
+  right: 5%;
+  width: min(74px, 17vw);
+  opacity: .9;
+  z-index: 2;
+  animation: float-b 11s ease-in-out infinite;
+}
+
+/* Cierre */
+.deco--closing-roses{
+  bottom: 16%;
+  right: -12%;
+  width: min(185px, 42vw);
+  opacity: .55;
+  transform: scaleX(-1);
+  animation: float-a 14s ease-in-out infinite;
+}
 .deco--candle{
-  right: 1rem;
-  bottom: 2rem;
-  width: min(124px, 27vw);
-  opacity: .8;
+  right: 6%;
+  top: 2.2rem;
+  width: min(86px, 20vw);
+  opacity: .85;
   animation: float-b 9s ease-in-out infinite;
 }
 
 /* ---------- 5. Vestimenta ---------- */
+
+.dresscode .wrap{ width: min(100% - var(--pad) * 2, 46rem); }
 
 .dresscode__value{
   font-family: var(--serif);
@@ -678,31 +756,15 @@ body.is-open .invitation{ opacity: 1; }
   color: var(--tan-deep);
 }
 
-.dresscode__icons{
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: clamp(1.6rem, 8vw, 3.8rem);
+.dresscode__board{
+  margin: 0;
 }
-.silhouette{ margin: 0; display: grid; justify-items: center; gap: .9rem; }
-.silhouette img{
-  height: clamp(124px, 34vw, 168px);
-  width: auto;
-  filter: drop-shadow(0 10px 16px rgba(90,76,52,.13));
+.dresscode__board img{
+  width: 100%;
+  border: 1px solid rgba(124,154,94,.35);
+  box-shadow: 0 22px 46px -30px rgba(74,64,52,.5);
 }
-.silhouette figcaption{
-  font-size: .66rem;
-  letter-spacing: .28em;
-  text-indent: .28em;
-  text-transform: uppercase;
-  color: var(--ink-soft);
-}
-.dresscode__divider{
-  width: 1px;
-  align-self: stretch;
-  margin-bottom: .6rem;
-  background: linear-gradient(to bottom, transparent, rgba(124,154,94,.55), transparent);
-}
+
 .dresscode__note{
   margin: 2.4rem auto 0;
   max-width: 24rem;
@@ -917,8 +979,21 @@ body.is-open .invitation{ opacity: 1; }
    ========================================================= */
 
 @media (min-width: 900px){
-  .photo__img{ height: 80svh; }
-  .silhouette img{ height: 196px; }
+  .deco--verse{ top: 14%; left: 9%; width: 244px; opacity: .8; }
+  .deco--hero-gypso{ right: 1%; bottom: 6%; width: 320px; }
+  .deco--count-gypso{ right: -2%; width: 270px; }
+  .deco--count-candle{ left: 9%; width: 92px; }
+  .deco--verse-gypso{ right: 7%; bottom: 12%; width: 260px; }
+  .deco--verse-candle{ left: 14%; bottom: 18%; width: 78px; }
+  .deco--loc-leaf{ left: 4%; width: 210px; }
+  .deco--dress-leaf-a{ left: 2%; width: 250px; }
+  .deco--dress-leaf-b{ right: 2%; width: 230px; }
+  .deco--time-candle{ right: 12%; width: 86px; }
+  .deco--time-gypso{ left: -2%; width: 260px; }
+  .deco--rsvp-roses{ left: 2%; width: 250px; }
+  .deco--rsvp-candle{ right: 9%; width: 94px; }
+  .deco--closing-roses{ right: 3%; width: 240px; }
+  .deco--candle{ right: 12%; width: 104px; }
   .hero__inner{ max-width: 44rem; }
   .hero__floral--top{ right: -2%; width: min(400px, 32vw); }
   .hero__floral--bottom{ left: -3%; width: min(420px, 34vw); }
