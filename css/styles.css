@@ -3,6 +3,30 @@
    Paleta: salvia · lima pálido · crema · beige · caramelo
    ========================================================= */
 
+/* ---------- Tipografías locales (fonts/) ----------
+   Merriweather es variable (wght 300-900, wdth 87-112, opsz 18-144): un solo archivo
+   cubre todos los pesos. No trae cursiva ni versalitas reales, así que las cursivas se
+   sintetizan; por eso el versículo y los nombres van en redonda y el "&" en Pinyon.
+   Merriweather tiene una altura de x mucho mayor que la Cormorant que había antes
+   (0,555 em contra ~0,36): rinde más grande al mismo tamaño, de ahí que los titulares
+   bajen de px mientras las etiquetas pequeñas suben. */
+@font-face{
+  font-family: "Merriweather";
+  src: url("../fonts/Merriweather.woff2") format("woff2-variations"),
+       url("../fonts/Merriweather.woff2") format("woff2");
+  font-weight: 300 900;
+  font-stretch: 87% 112%;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face{
+  font-family: "Pinyon Script";
+  src: url("../fonts/PinyonScript.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root{
   --sage:        #A8C686;
   --sage-deep:   #7C9A5E;
@@ -17,9 +41,11 @@
   --ink-soft:    #6E6353;
   --white:       #FFFFFF;
 
-  --serif: "Cormorant Garamond", "Iowan Old Style", Georgia, serif;
-  --sans:  "Jost", "Avenir Next", "Segoe UI", system-ui, sans-serif;
-  --script:"Pinyon Script", "Cormorant Garamond", cursive;
+  /* Una sola familia de texto: Merriweather en dos papeles. --serif para titulares y
+     cuerpo; --sans para las etiquetas pequeñas con tracking (mismo archivo, otro uso). */
+  --serif: "Merriweather", "Iowan Old Style", Georgia, serif;
+  --sans:  "Merriweather", "Iowan Old Style", Georgia, serif;
+  --script:"Pinyon Script", "Merriweather", cursive;
 
   --measure: 34rem;
   --pad: clamp(1.5rem, 6vw, 3rem);
@@ -40,13 +66,14 @@ body{
   color: var(--ink);
   font-family: var(--sans);
   font-weight: 300;
-  font-size: clamp(.95rem, .9rem + .3vw, 1.05rem);
-  line-height: 1.75;
-  letter-spacing: .012em;
+  font-size: clamp(1.02rem, .96rem + .35vw, 1.14rem);
+  line-height: 1.72;
+  letter-spacing: 0;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   font-variant-numeric: lining-nums;
   font-feature-settings: "lnum" 1;
+  font-optical-sizing: auto;
 }
 
 img{ max-width: 100%; height: auto; display: block; }
@@ -62,8 +89,8 @@ img{ max-width: 100%; height: auto; display: block; }
 .section__title{
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(2.1rem, 1.5rem + 3vw, 3.1rem);
-  line-height: 1.1;
+  font-size: clamp(1.85rem, 1.3rem + 2.4vw, 2.65rem);
+  line-height: 1.18;
   letter-spacing: .005em;
   margin: .1em 0 .55em;
 }
@@ -71,9 +98,9 @@ img{ max-width: 100%; height: auto; display: block; }
 .kicker{
   font-family: var(--sans);
   font-weight: 400;
-  font-size: .72rem;
-  letter-spacing: .34em;
-  text-indent: .34em;
+  font-size: .82rem;
+  letter-spacing: .3em;
+  text-indent: .3em;
   color: var(--tan-deep);
   margin: 0;
   text-transform: lowercase;
@@ -116,15 +143,15 @@ img{ max-width: 100%; height: auto; display: block; }
   align-items: center;
   justify-content: center;
   min-height: 52px;
-  padding: .85em 2.3em;
+  padding: .85em 2em;
   border-radius: 2px;
   background: linear-gradient(160deg, var(--tan) 0%, #BE9A63 100%);
   color: #fff;
   font-family: var(--sans);
   font-weight: 400;
-  font-size: .78rem;
-  letter-spacing: .22em;
-  text-indent: .22em;
+  font-size: .82rem;
+  letter-spacing: .17em;
+  text-indent: .17em;
   text-transform: uppercase;
   text-decoration: none;
   box-shadow: var(--shadow-soft);
@@ -136,7 +163,7 @@ img{ max-width: 100%; height: auto; display: block; }
   box-shadow: var(--shadow-lift);
 }
 .btn:active{ transform: translateY(-1px); }
-.btn--lg{ min-height: 60px; padding: 1em 2.8em; font-size: .84rem; }
+.btn--lg{ min-height: 60px; padding: 1em 2.4em; font-size: .88rem; }
 
 :focus-visible{
   outline: 2px solid var(--tan-deep);
@@ -209,9 +236,9 @@ body.is-open .envelope-scene{
 }
 
 .envelope-open__hint{
-  font-size: .7rem;
-  letter-spacing: .3em;
-  text-indent: .3em;
+  font-size: .78rem;
+  letter-spacing: .26em;
+  text-indent: .26em;
   text-transform: uppercase;
   color: var(--ink);
   padding: .7em 1.4em;
@@ -262,13 +289,15 @@ body.is-open .invitation{ opacity: 1; }
   background-image: url("../assets/main.jpg");
   background-size: cover;
   background-position: center;
+  background-color: rgba(255, 255, 255, 0.6); 
+  background-blend-mode: lighten; 
 }
 
 .hero__inner{ max-width: 30rem; }
 
 .hero__eyebrow{
-  font-size: .72rem;
-  letter-spacing: .2em;
+  font-size: .82rem;
+  letter-spacing: .14em;
   color: var(--ink-soft);
   margin: 0 0 1.6rem;
 }
@@ -276,9 +305,9 @@ body.is-open .invitation{ opacity: 1; }
 .hero__title{
   font-family: var(--serif);
   font-weight: 300;
-  font-size: clamp(3rem, 1.6rem + 9vw, 5.6rem);
-  line-height: .98;
-  letter-spacing: .01em;
+  font-size: clamp(2.4rem, 1.4rem + 5.2vw, 4.3rem);
+  line-height: 1.04;
+  letter-spacing: -.005em;
   margin: 0;
 }
 
@@ -308,24 +337,29 @@ body.is-open .invitation{ opacity: 1; }
 .hero__names{
   font-family: var(--serif);
   font-weight: 300;
-  font-style: italic;
-  font-size: clamp(1.6rem, 1rem + 3.4vw, 2.5rem);
-  line-height: 1.25;
+  font-size: clamp(1.3rem, .95rem + 2.2vw, 2rem);
+  line-height: 1.3;
   color: var(--ink);
   margin: 0 0 1.1rem;
 }
+/* El "&" en Pinyon: sustituye a la cursiva que Merriweather no tiene y rima con
+   .closing__names, que ya usa la misma letra. */
 .hero__names em{
-  font-family: var(--serif);
-  font-style: italic;
+  font-family: var(--script);
+  font-style: normal;
   font-weight: 400;
   color: var(--tan-deep);
-  font-size: 1.05em;
-  padding-inline: .18em;
+  /* Pinyon dibuja muy pequeño dentro de su em: hace falta ~2x para que el "&"
+     pese lo mismo que los nombres. line-height:0 evita que ensanche la línea. */
+  font-size: 2em;
+  line-height: 0;
+  vertical-align: -.12em;
+  padding-inline: .1em;
 }
 
 .hero__date{
-  font-size: .78rem;
-  letter-spacing: .18em;
+  font-size: .86rem;
+  letter-spacing: .12em;
   color: var(--ink-soft);
   margin: 0;
 }
@@ -379,8 +413,29 @@ body.is-open .invitation{ opacity: 1; }
 /* ---------- 2. Cuenta regresiva ---------- */
 
 .countdown{
-  background:
-    linear-gradient(180deg, var(--cream) 0%, var(--beige) 30%, var(--beige) 70%, var(--cream-warm) 100%);
+  background-color: var(--beige);
+  overflow: initial;
+}
+.countdown::before {
+  content: "";
+  position: absolute; inset: 0;
+  top: -27px; left: 0;
+  z-index: 10;
+  background-image: url("../assets/recorte_beige.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.recorte_after {
+  position: absolute; inset: 0;
+  top: -27px; left: 0;
+  z-index: 20;
+  background-image: url("../assets/recorte_beige.png");
+  background-repeat: no-repeat;
+  background-size: contain;
+  top: auto; bottom: -26px;
+  transform: rotate(180deg);
+  height: 29px;
 }
 
 .countdown .section__title{ margin-bottom: 1.4rem; }
@@ -406,7 +461,7 @@ body.is-open .invitation{ opacity: 1; }
 .clock__num{
   font-family: var(--serif);
   font-weight: 400;
-  font-size: clamp(2.1rem, 1.1rem + 5.2vw, 3.4rem);
+  font-size: clamp(1.9rem, 1rem + 4.4vw, 3rem);
   line-height: 1;
   color: var(--ink);
   font-variant-numeric: tabular-nums;
@@ -419,28 +474,28 @@ body.is-open .invitation{ opacity: 1; }
 }
 
 .clock__label{
-  font-size: .6rem;
-  letter-spacing: .2em;
+  font-size: .68rem;
+  letter-spacing: .14em;
   text-transform: uppercase;
   color: var(--tan-deep);
 }
 
 .clock__sep{
   font-family: var(--serif);
-  font-size: clamp(1.4rem, 3.5vw, 2.2rem);
-  line-height: 1.35;
+  font-size: clamp(1.3rem, 3vw, 1.9rem);
+  line-height: 1.5;
   color: rgba(165,129,63,.45);
 }
 
 .countdown__date{
   font-family: var(--serif);
-  font-size: clamp(1.5rem, 1rem + 2.4vw, 2.1rem);
-  margin: 2rem 0 .1rem;
+  font-size: clamp(1.35rem, .95rem + 1.9vw, 1.85rem);
+  margin: 2rem 0 .2rem;
 }
 .countdown__time{
-  font-size: .74rem;
-  letter-spacing: .26em;
-  text-indent: .26em;
+  font-size: .82rem;
+  letter-spacing: .2em;
+  text-indent: .2em;
   text-transform: uppercase;
   color: var(--ink-soft);
   margin: 0;
@@ -450,23 +505,31 @@ body.is-open .invitation{ opacity: 1; }
 
 .verse-section{
   padding-block: clamp(4.4rem, 12vw, 7rem);
-  background:
+  /* background:
     radial-gradient(78% 62% at 50% 48%, rgba(255,232,190,.42) 0%, rgba(255,232,190,0) 72%),
-    var(--cream-warm);
+    var(--cream-warm); */
   text-align: center;
 }
 .verse-section .wrap{ margin: 0 auto; }
 
 .verse{
   font-family: var(--serif);
-  font-style: italic;
   font-weight: 300;
-  font-size: clamp(1.5rem, 1.05rem + 3vw, 2.4rem);
-  line-height: 1.4;
+  font-size: clamp(1.3rem, .95rem + 2.2vw, 2rem);
+  line-height: 1.55;
   color: var(--ink);
-  max-width: 22rem;
+  max-width: 24rem;
   margin: 0 auto;
   text-wrap: balance;
+}
+.verse-section::after {
+  content: "";
+  position: absolute; inset: 0;
+  top: -27px; left: 0;
+  z-index: 10;
+  background-image: url("../assets/recorte_cream.png");
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 .verse__rule{
   display: block;
@@ -479,9 +542,9 @@ body.is-open .invitation{ opacity: 1; }
   display: block;
   font-family: var(--sans);
   font-style: normal;
-  font-size: .68rem;
-  letter-spacing: .3em;
-  text-indent: .3em;
+  font-size: .76rem;
+  letter-spacing: .24em;
+  text-indent: .24em;
   text-transform: uppercase;
   color: var(--tan-deep);
 }
@@ -508,12 +571,12 @@ body.is-open .invitation{ opacity: 1; }
 }
 .venue{
   font-family: var(--serif);
-  font-size: clamp(1.8rem, 1.2rem + 2.8vw, 2.5rem);
-  line-height: 1.15;
+  font-size: clamp(1.6rem, 1.1rem + 2.2vw, 2.2rem);
+  line-height: 1.22;
   margin: 0 0 .5rem;
 }
 .address{
-  font-size: .9rem;
+  font-size: 1rem;
   color: var(--ink-soft);
   margin: 0 0 2rem;
 }
@@ -649,9 +712,9 @@ body.is-open .invitation{ opacity: 1; }
 
 .dresscode__value{
   font-family: var(--serif);
-  font-size: clamp(1.7rem, 1.2rem + 2.4vw, 2.2rem);
-  letter-spacing: .18em;
-  text-indent: .18em;
+  font-size: clamp(1.5rem, 1.1rem + 2vw, 1.95rem);
+  letter-spacing: .14em;
+  text-indent: .14em;
   margin: 0 0 2.4rem;
   color: var(--tan-deep);
 }
@@ -667,8 +730,8 @@ body.is-open .invitation{ opacity: 1; }
 
 .dresscode__note{
   margin: 2.4rem auto 0;
-  max-width: 24rem;
-  font-size: .82rem;
+  max-width: 26rem;
+  font-size: .92rem;
   color: var(--ink-soft);
 }
 
@@ -723,21 +786,21 @@ body.is-open .invitation{ opacity: 1; }
 
 .timeline__time{
   font-family: var(--sans);
-  font-size: .7rem;
-  font-weight: 400;
-  letter-spacing: .26em;
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .2em;
   text-transform: uppercase;
   color: var(--tan-deep);
   margin: 0 0 .15rem;
 }
 .timeline__name{
   font-family: var(--serif);
-  font-size: clamp(1.4rem, 1.1rem + 1.6vw, 1.8rem);
-  line-height: 1.2;
+  font-size: clamp(1.25rem, 1rem + 1.3vw, 1.6rem);
+  line-height: 1.3;
   margin: 0 0 .2rem;
 }
 .timeline__desc{
-  font-size: .86rem;
+  font-size: .95rem;
   color: var(--ink-soft);
   margin: 0;
   max-width: 24rem;
@@ -799,16 +862,16 @@ body.is-open .invitation{ opacity: 1; }
   z-index: 1;
 }
 .rsvp__text{
-  max-width: 27rem;
+  max-width: 29rem;
   margin: 0 auto 2.4rem;
-  font-size: .92rem;
+  font-size: 1.02rem;
   color: var(--ink-soft);
 }
 .rsvp__text strong{ font-weight: 500; color: var(--ink); }
 .rsvp__hint{
   margin: 1.2rem 0 0;
-  font-size: .74rem;
-  letter-spacing: .1em;
+  font-size: .82rem;
+  letter-spacing: .08em;
   color: var(--ink-soft);
 }
 
@@ -831,22 +894,22 @@ body.is-open .invitation{ opacity: 1; }
 }
 .closing__text{
   font-family: var(--serif);
-  font-size: clamp(1.4rem, 1.05rem + 2vw, 2rem);
-  line-height: 1.4;
+  font-size: clamp(1.25rem, 1rem + 1.6vw, 1.75rem);
+  line-height: 1.55;
   margin: 0 0 1.6rem;
 }
 .closing__names{
   font-family: var(--script);
-  font-size: clamp(2rem, 1.3rem + 3.6vw, 3rem);
+  font-size: clamp(2.2rem, 1.4rem + 4vw, 3.4rem);
   line-height: 1.3;
   color: var(--tan-deep);
   margin: 0 0 .6rem;
 }
 .closing__names em{ font-style: normal; }
 .closing__date{
-  font-size: .68rem;
-  letter-spacing: .34em;
-  text-indent: .34em;
+  font-size: .76rem;
+  letter-spacing: .28em;
+  text-indent: .28em;
   color: var(--ink-soft);
   margin: 0;
 }

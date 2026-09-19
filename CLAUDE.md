@@ -182,5 +182,33 @@ guiaron el diseño y siguen aplicando: elegir tipografía y paleta a propósito,
 generada (eyebrow en mayúsculas sobre cada título, tarjetas idénticas, flecha «→» en los botones),
 y gastar la audacia en un solo lugar — aquí, el sobre que se abre.
 
-Cormorant Garamond trae cifras de estilo antiguo por defecto; el `font-variant-numeric: lining-nums`
-del `body` es lo que hace que la cuenta regresiva y las fechas se lean bien. No quitarlo.
+## Tipografía
+
+Las fuentes se sirven desde `fonts/` (no hay peticiones a Google Fonts) y se declaran con
+`@font-face` al principio de `css/styles.css`:
+
+- **Merriweather** (`fonts/Merriweather.woff2`) es variable: ejes `wght` 300-900, `wdth` 87-112,
+  `opsz` 18-144. Un solo archivo cubre todos los pesos, así que pedir un peso nuevo no cuesta
+  descarga. Cubre los tres papeles de texto: `--serif` (titulares y cuerpo) y `--sans` (etiquetas
+  pequeñas con tracking) apuntan al mismo archivo.
+- **Pinyon Script** (`fonts/PinyonScript.woff2`) es `--script`: los nombres del cierre y el «&» de
+  la portada. Dibuja muy pequeño dentro de su em — hace falta ~2× el tamaño del texto vecino para
+  que pese lo mismo.
+
+Ambas van con `<link rel="preload" … crossorigin>` en el `<head>`; el `crossorigin` no es opcional
+aunque el archivo sea local, o el navegador descarga la fuente dos veces.
+
+**Merriweather no trae cursiva ni versalitas reales.** La cursiva se sintetiza y se ve sucia, así
+que el versículo y `.hero__names` van en redonda y el «&» se resuelve con Pinyon. Si se añade un
+`font-style: italic` nuevo hay que comprobar cómo queda, o traer el archivo de la itálica.
+
+**Su altura de x es 0,555 em**, contra ~0,36 de la Cormorant Garamond que había antes: rinde
+bastante más grande al mismo tamaño en px. Por eso los titulares **bajaron** de px al cambiar de
+fuente mientras las etiquetas pequeñas **subieron**; los trackings de las mayúsculas también se
+recortaron (de .34/.26 em a .3/.2), porque Merriweather ya es ancha de por sí. Al tocar un
+`font-size` conviene medirlo contra un viewport de 375 px: `.btn`, `.section__title` y `.clock`
+son los que primero se desbordan.
+
+El `font-variant-numeric: lining-nums` del `body` ya no hace falta para Merriweather (sus cifras
+por defecto son de caja alta), pero se conserva para las fuentes de reserva. `font-optical-sizing:
+auto` sí importa: es lo que hace que los titulares grandes usen un dibujo más apretado.

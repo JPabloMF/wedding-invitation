@@ -9,9 +9,9 @@
 <meta property="og:title" content="Nuestra Boda — Juan Pablo &amp; Juliana" />
 <meta property="og:description" content="21 de noviembre de 2026 · Rooftop Qantic, Medellín" />
 <meta property="og:image" content="assets/opt/pareja.jpg" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500&family=Pinyon+Script&display=swap" rel="stylesheet" />
+<!-- Tipografías servidas desde fonts/ (ya no hay peticiones a Google Fonts). -->
+<link rel="preload" href="fonts/Merriweather.woff2" as="font" type="font/woff2" crossorigin />
+<link rel="preload" href="fonts/PinyonScript.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="css/styles.css" />
 </head>
 <body class="is-sealed">
@@ -60,8 +60,6 @@
 
   <!-- 2. Cuenta regresiva -->
   <section class="section countdown" aria-labelledby="countdown-title">
-    <img class="deco deco--count-candle" src="assets/opt/candle2.webp" alt="" aria-hidden="true" loading="lazy" />
-    <img class="deco deco--count-gypso" src="assets/opt/floral2.webp" alt="" aria-hidden="true" loading="lazy" />
     <div class="wrap reveal">
       <p class="kicker">Reserva la fecha</p>
       <h2 class="section__title" id="countdown-title">Faltan</h2>
@@ -78,6 +76,7 @@
       <p class="countdown__date">21 de noviembre, 2026</p>
       <p class="countdown__time">4:00 p.&nbsp;m.</p>
     </div>
+    <div class="recorte_after"></div>
   </section>
 
   <!-- 3. Versículo -->
