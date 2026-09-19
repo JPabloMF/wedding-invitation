@@ -4,29 +4,76 @@
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---------- 1. Apertura del sobre ---------- */
+  /* ---------- 1. Apertura del sobre (video) ---------- */
 
   var body = document.body;
   var envelope = document.getElementById('envelope');
+  var video = document.getElementById('envelope-video');
   var scene = document.getElementById('envelope-scene');
   var invitation = document.getElementById('invitation');
-  var opened = false;
+  var abierto = false;
+  var reproduciendo = false;
+  var vigilante = null;
 
-  function abrir() {
-    if (opened) return;
-    opened = true;
+  // Desvanece la escena y entrega la invitación. El retardo tiene que superar
+  // la transición de .envelope-scene (1 s) o la escena se corta a media salida.
+  function revelarInvitacion() {
+    if (abierto) return;
+    abierto = true;
     body.classList.add('is-open');
-    body.classList.remove('is-sealed');
+    body.classList.remove('is-sealed', 'is-playing');
+    if (vigilante) window.clearTimeout(vigilante);
 
     window.setTimeout(function () {
       if (scene) scene.style.display = 'none';
+      if (video) {
+        video.pause();
+        video.removeAttribute('src');
+        video.load(); // libera los 12 MB del buffer
+      }
       window.scrollTo(0, 0);
       if (invitation) {
         invitation.setAttribute('tabindex', '-1');
         invitation.focus({ preventScroll: true });
       }
       revelar();
-    }, reduced ? 60 : 2200);
+    }, reduced ? 60 : 1100);
+  }
+
+  // Red de seguridad: si el video no arranca o se queda colgado, la invitación
+  // tiene que quedar accesible igual. Nunca puede haber una pantalla sin salida.
+  var ESPERA_ARRANQUE = 6000;   // desde el click hasta que haya fotogramas
+  var MARGEN_FINAL = 3000;      // por si nunca llega el evento `ended`
+
+  function abrir() {
+    if (abierto || reproduciendo) return;
+
+    // Sin video, con movimiento reducido, o si el archivo ya falló antes del toque
+    // (el evento `error` ya no volverá a dispararse), se pasa directo a la invitación.
+    if (!video || reduced || video.error) {
+      revelarInvitacion();
+      return;
+    }
+
+    reproduciendo = true;
+    body.classList.add('is-playing');
+
+    vigilante = window.setTimeout(revelarInvitacion, ESPERA_ARRANQUE);
+
+    video.addEventListener('error', revelarInvitacion, { once: true });
+    video.addEventListener('ended', revelarInvitacion, { once: true });
+
+    // En cuanto hay imagen se cambia el vigilante corto por uno del largo del video.
+    video.addEventListener('playing', function () {
+      window.clearTimeout(vigilante);
+      var resto = (isFinite(video.duration) ? video.duration - video.currentTime : 10) * 1000;
+      vigilante = window.setTimeout(revelarInvitacion, resto + MARGEN_FINAL);
+    }, { once: true });
+
+    var promesa = video.play();
+    if (promesa && promesa.catch) {
+      promesa.catch(function () { revelarInvitacion(); });
+    }
   }
 
   if (envelope) {
@@ -112,7 +159,7 @@
     pendientes.forEach(function (el) { observador.observe(el); });
   }
 
-  // Si alguien llega con el sobre ya abierto (recarga con hash), no bloquear.
+  // Si no hay botón de apertura, no bloquear la página.
   if (!envelope) {
     body.classList.remove('is-sealed');
     body.classList.add('is-open');

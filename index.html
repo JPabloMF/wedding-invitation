@@ -18,27 +18,20 @@
 
 <!-- Sobre / apertura -->
 <div class="envelope-scene" id="envelope-scene">
-  <div class="envelope-glow" aria-hidden="true"></div>
-  <button class="envelope" id="envelope" type="button" aria-label="Abrir la invitación">
-    <span class="envelope__body" aria-hidden="true">
-      <span class="envelope__letter">
-        <span class="envelope__letter-inner">
-          <span class="envelope__monogram">J<em>&amp;</em>J</span>
-          <span class="envelope__letter-rule"></span>
-          <span class="envelope__letter-date">21 · 11 · 2026</span>
-        </span>
-      </span>
-      <span class="envelope__front"></span>
-      <span class="envelope__flap"></span>
-      <span class="envelope__seal">
-        <svg viewBox="0 0 64 64" aria-hidden="true">
-          <circle cx="32" cy="32" r="30" class="seal-disc" />
-          <circle cx="32" cy="32" r="25" class="seal-ring" />
-          <text x="32" y="41" text-anchor="middle" class="seal-text">JJ</text>
-        </svg>
-      </span>
-    </span>
-    <span class="envelope__hint">Toca para abrir</span>
+  <video
+    class="envelope-video"
+    id="envelope-video"
+    src="assets/opt/intro.mp4"
+    poster="assets/opt/intro-poster.webp"
+    preload="auto"
+    muted
+    playsinline
+    webkit-playsinline
+    disablepictureinpicture
+    aria-hidden="true"
+  ></video>
+  <button class="envelope-open" id="envelope" type="button" aria-label="Abrir la invitación">
+    <span class="envelope-open__hint">Toca para abrir</span>
   </button>
 </div>
 

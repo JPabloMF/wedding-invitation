@@ -14,6 +14,9 @@ invitado va en español; el código y los comentarios también están en españo
 python -m http.server 8000        # servir la página (o abrir index.html directo)
 ```
 
+El cliente trabaja con Live Server de VS Code en
+`http://127.0.0.1:5500/Invitacion%20Boda/index.html`; si está levantado, revisar contra esa URL.
+
 No hay build, lint ni suite de pruebas. La verificación es visual, con Playwright (Python):
 
 ```python
@@ -38,25 +41,42 @@ Dos trampas al capturar pantallas:
 ## Arquitectura
 
 **Máquina de estados por clases en `<body>`.** `is-sealed` (inicial, bloquea el scroll) →
-click en `#envelope` → `is-open`. Todo lo demás cuelga de esas dos clases en CSS; `js/main.js`
-solo las alterna, oculta la escena y arranca las apariciones.
+click en `#envelope` → `is-playing` (el video corre) → evento `ended` → `is-open`. Todo lo demás
+cuelga de esas clases en CSS; `js/main.js` solo las alterna, oculta la escena y arranca las
+apariciones.
 
-**Las duraciones de la apertura están repartidas entre CSS y JS y hay que moverlas juntas:**
+**El cierre de la escena está repartido entre CSS y JS y hay que moverlo junto:**
 
 | Paso | Dónde |
 | --- | --- |
-| Lacre, solapa, carta | `body.is-open .envelope__*` en `css/styles.css` |
-| Desvanecido de la escena | `transition` de `.envelope-scene` (retardo 1,15 s) |
-| Aparición de la invitación | `transition` de `.invitation` (retardo 1,3 s) |
-| `display:none` de la escena + inicio del IntersectionObserver | `setTimeout` de 2200 ms en `js/main.js` |
+| Desvanecido de la escena | `transition` de `.envelope-scene` (1 s, sin retardo) |
+| Aparición de la invitación | `transition` de `.invitation` (retardo 0,35 s) |
+| `display:none` de la escena + descarga del video + inicio del IntersectionObserver | `setTimeout` de 1100 ms en `js/main.js` |
 
-Si se cambia un retardo del CSS, el `setTimeout` debe seguir siendo mayor que el total, o la
-escena desaparece a mitad de la animación.
+El `setTimeout` tiene que seguir siendo mayor que la transición de `.envelope-scene`, o la escena
+se corta a media salida.
 
-**Geometría del sobre.** `.envelope__letter` vive dentro de la caja del sobre (`top:7%; height:86%`)
-con `z-index` por debajo de `.envelope__front`, así queda oculta cuando está cerrado; al abrir sube
-con `translateY(-72%)`. El `padding-bottom: 44%` de `.envelope__letter-inner` es lo que mantiene el
-monograma en la parte que sí queda visible. Los tres valores están acoplados.
+**Video de apertura.** `.envelope-scene` es una capa fija con `<video id="envelope-video">` a
+pantalla completa. El video es vertical (1080×1920) y **trae su propio marco pintado**, así que va
+con `object-fit: fill` en vertical (`max-aspect-ratio: 3/4`) y `contain` en pantallas anchas. Con
+`cover` el sobre se sale del encuadre incluso en un móvil de 390 px, así que no se recorta nunca; en
+vertical el cliente prefiere el estiramiento (~20-25%) antes que las bandas, pero en escritorio
+`fill` deformaría el video casi el triple a lo ancho, de ahí el corte por proporción y no por ancho.
+El fondo de `.envelope-scene` es un radial muestreado del borde del video (esquinas #9DA596–#A6AE9F,
+centro de los bordes #C6C7BD–#CCCDC2) para que las bandas del `contain` no se lean como bandas; al
+reemplazar el video hay que volver a muestrear esos bordes y reajustar el radial. El `<video>` no es interactivo: encima va
+`.envelope-open`, un `<button>` a pantalla completa que recibe el click y sostiene el aviso
+«Toca para abrir».
+
+El `poster` (`assets/opt/intro-poster.webp`, el primer fotograma a 720×1280) **no es opcional**: los
+navegadores móviles ignoran `preload` para ahorrar datos, así que el video no se descarga hasta que
+se toca y sin póster la primera pantalla sale en blanco. Si se reemplaza el video hay que regenerar
+el póster del nuevo primer fotograma, o al tocar se ve un salto.
+
+Va `muted` + `playsinline` a propósito: sin eso iOS lo abre en pantalla completa y Chrome bloquea
+`play()`. Al terminar (`ended`) se libera el `src` para no dejar 12 MB en memoria. Si el video
+falla, no existe, o hay movimiento reducido, `abrir()` salta directo a la invitación — nunca hay
+una pantalla de la que no se pueda salir.
 
 **Cuenta regresiva.** Anclada a `2026-11-21T16:00:00-05:00` en `js/main.js` (hora de Colombia fija,
 para que el conteo sea igual en cualquier huso). El aviso para lectores de pantalla se emite una vez
@@ -97,23 +117,63 @@ es un radial que muere antes de los bordes, así que no participa en la cadena.
 
 `assets/` guarda los originales (JPEG/PNG pesados, hasta 2 MB). La página **solo** referencia
 `assets/opt/*.webp`. Al reemplazar una imagen hay que regenerar su `.webp` con Pillow manteniendo el
-nombre: florales a 760 px de ancho (600 px las velas) conservando transparencia, fotos a calidad 82.
+nombre: florales a 640–760 px de ancho (600 px las velas) conservando transparencia, fotos a calidad 82.
 El divisor del cierre va recortado a su bbox de alfa (`getchannel('A').getbbox()`) y a 920 px —el doble
 de su ancho máximo en CSS— con `quality=95, alpha_quality=100`; el PNG original trae dos tercios de
 lienzo vacío que descuadran los márgenes si no se recorta. `assets/opt/pareja.jpg` se conserva aparte porque es el `og:image` para compartir.
 
-`assets/dresscode.png` es una lámina de 3x2 prendas sobre transparencia; `vestido.webp` y
-`traje.webp` salen de recortar dos celdas de esa lámina y ajustarlas a su bbox de alfa. Al ser color
-plano comprimen mejor sin pérdida (10 y 22 KB), así que van con `lossless=True`.
+`assets/intro.mp4` es el original del video de apertura; la página carga `assets/opt/intro.mp4`,
+que es el mismo archivo con el box `moov` movido delante de `mdat` (*faststart*) y sin el box `uuid`
+de relleno que trae el exportador. Sin eso el navegador tiene que descargar los 12,7 MB completos
+antes de pintar un solo fotograma. Al reemplazarlo hay que rehacer ese remux —o exportar ya con
+faststart— y revisar el peso: 12,7 MB para 8 s es ~12 Mbps, muchísimo para abrir la invitación
+desde datos móviles.
+
+`assets/dresscode.png` es una lámina ya compuesta (títulos, listas y figuras) y **va tal cual**: el
+cliente pidió expresamente no recortarla ni retocarla. `dresscode.webp` es esa misma imagen a su
+tamaño original, solo cambiada de contenedor (`quality=92`). Cuando el cliente la reemplace hay que
+regenerar el `.webp`, **actualizar los atributos `width`/`height` del `<img>`** —cambia de
+dimensiones entre versiones— y revisar que el `alt` siga describiendo las listas que viven dentro de
+la imagen, porque es el único acceso a ese contenido para lectores de pantalla.
+
+`vestido.webp` y `traje.webp` son recortes de una versión anterior de la lámina y ya no se usan.
 
 Los florales venían de PNG con transparencia; cuantizarlos con paleta dejaba un rectángulo visible
 alrededor de las flores — por eso WebP y no PNG reducido.
+
+## Adornos florales
+
+Los `.deco--*` son ~16 imágenes decorativas repartidas por los bordes de todas las secciones
+(`position: absolute`, `aria-hidden`, `pointer-events: none`). Solo hay cinco archivos detrás: se
+repiten con `scaleX(-1)`, rotaciones y escalas distintas, de modo que un adorno nuevo no cuesta
+descarga si reutiliza un archivo ya presente. Antes de añadir un `.webp` nuevo, comprobar si alguno
+de los existentes sirve volteado.
+
+Sangran fuera del encuadre y los recorta el `overflow: hidden` de la sección. Las velas van completas
+dentro del área visible —una vela cortada se lee como error—; las gypsophilas y el follaje sí pueden
+salirse. Opacidades entre 0,4 y 0,9 según cuánto compitan con el texto.
+
+`candle2.webp` trae su propio resplandor pintado. No añadirle `filter: drop-shadow(...)`: la sombra
+sigue el borde del lienzo y aparece un rectángulo pálido alrededor.
 
 ## Datos que cambian con frecuencia
 
 Los enumera `README.md` en una tabla: fecha del conteo, horas del itinerario (`<ol class="timeline">`),
 enlace de WhatsApp (`wa.link/dgonhr`), enlace de Maps, fecha límite en `.rsvp__text`, y los tokens de
 color en `:root`.
+
+## Pendientes conocidos
+
+Medidos en el navegador, sin corregir todavía:
+
+- **Sin JavaScript la invitación es inalcanzable.** El sobre queda sellado y no hay forma de ver el
+  contenido. Se resuelve con un `<noscript>` que anule `body.is-sealed` y la opacidad de
+  `.invitation`.
+- **Contraste bajo.** Texto blanco sobre el caramelo del botón: 2,25:1. Las etiquetas doradas
+  pequeñas (`--tan-deep` #A5813F): 3,2–3,4:1. Alternativas verificadas: tinta #4A4034 sobre el
+  caramelo actual da 4,51:1; `--tan-deep` en #836327 sube las etiquetas a 5,2:1 sobre crema.
+- **`og:image` apunta a `pareja.jpg`**, la foto que se quitó de la página, así que sigue apareciendo
+  al compartir el enlace. `assets/opt/pareja.webp` quedó sin uso.
 
 ## Diseño
 
