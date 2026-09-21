@@ -894,7 +894,7 @@ img.deco--arch{
   text-align: center;
   overflow: hidden;
   padding-top: 100px;
-  padding-bottom: 100px;
+  padding-bottom: 50px;
 }
 .closing::before{
   content: "";
