@@ -37,6 +37,7 @@
         invitation.focus({ preventScroll: true });
       }
       revelar();
+      lluviaDePetalos();
     }, reduced ? 60 : 1100);
   }
 
@@ -159,10 +160,91 @@
     pendientes.forEach(function (el) { observador.observe(el); });
   }
 
+  /* ---------- 4. Lluvia de petalos ---------- */
+
+  // Seis archivos en assets/opt/petal*.webp. Se sortean tamano, opacidad, ritmo y eje
+  // de volteo por petalo: repetir el mismo .webp no cuesta descarga y con parametros
+  // distintos ninguno se lee como copia de otro. Ver el bloque "Lluvia de petalos" de
+  // css/styles.css para como se reparten las tres animaciones entre los tres niveles.
+
+  var PETALOS = 6;          // cuantos .webp distintos hay
+  var capaPetalos = document.getElementById('petals');
+  var petalosListos = false;
+
+  function azar(min, max) { return min + Math.random() * (max - min); }
+
+  function crearPetalo(i, total) {
+    var lejos = i % 4 === 0;              // un cuarto al fondo: borroso y palido
+
+    var caida = azar(13, 26);             // s; los lentos se leen como los de mas lejos
+    var tam = lejos ? azar(22, 34) : azar(28, 52);
+    var opacidad = lejos ? azar(0.28, 0.46) : azar(0.5, 0.82);
+
+    var petalo = document.createElement('div');
+    petalo.className = 'petal' + (lejos ? ' petal--far' : '');
+
+    var est = petalo.style;
+    est.setProperty('--x', azar(-6, 100).toFixed(2) + '%');
+    est.setProperty('--size', tam.toFixed(1) + 'px');
+    est.setProperty('--fall', caida.toFixed(2) + 's');
+    // Retardo negativo escalonado: al abrir el sobre la pantalla ya esta poblada en
+    // lugar de tardar media caida en llenarse.
+    est.setProperty('--delay', (-(i / total) * caida - azar(0, 3)).toFixed(2) + 's');
+    est.setProperty('--drift', azar(14, 52).toFixed(1) + 'px');
+    est.setProperty('--sway', azar(3, 6).toFixed(2) + 's');
+    est.setProperty('--sway-delay', (-azar(0, 6)).toFixed(2) + 's');
+    est.setProperty('--spin', azar(4, 9).toFixed(2) + 's');
+    est.setProperty('--spin-dir', Math.random() < 0.5 ? 'normal' : 'reverse');
+    est.setProperty('--op', opacidad.toFixed(2));
+    // Eje de volteo. Domina Z (giro en el propio plano) con algo de X/Y para que el
+    // petalo se ladee: con X/Y dominantes pasa demasiado tiempo de canto y ahi se ve
+    // como una astilla blanca, no como un petalo.
+    est.setProperty('--ax', azar(0.1, 0.38).toFixed(2));
+    est.setProperty('--ay', azar(0.1, 0.38).toFixed(2));
+    est.setProperty('--az', azar(0.8, 1).toFixed(2));
+    est.setProperty('--r0', azar(0, 360).toFixed(0) + 'deg');
+
+    var vaiven = document.createElement('div');
+    vaiven.className = 'petal__sway';
+
+    var img = document.createElement('img');
+    img.className = 'petal__img';
+    img.src = 'assets/opt/petal' + (1 + (i % PETALOS)) + '.webp';
+    img.alt = '';
+    img.setAttribute('aria-hidden', 'true');
+    img.decoding = 'async';
+
+    vaiven.appendChild(img);
+    petalo.appendChild(vaiven);
+    return petalo;
+  }
+
+  function lluviaDePetalos() {
+    if (petalosListos || reduced || !capaPetalos) return;
+    petalosListos = true;
+
+    // En movil menos piezas: cada una es una capa compuesta aparte.
+    var total = window.innerWidth < 640 ? 18 : 24;
+    var lote = document.createDocumentFragment();
+    for (var i = 0; i < total; i++) lote.appendChild(crearPetalo(i, total));
+    capaPetalos.appendChild(lote);
+
+    // La capa entra con su propio desvanecido para que no aparezca de golpe sobre la
+    // portada recien revelada.
+    window.requestAnimationFrame(function () {
+      capaPetalos.classList.add('is-active');
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      capaPetalos.classList.toggle('is-paused', document.hidden);
+    });
+  }
+
   // Si no hay botón de apertura, no bloquear la página.
   if (!envelope) {
     body.classList.remove('is-sealed');
     body.classList.add('is-open');
     revelar();
+    lluviaDePetalos();
   }
 })();

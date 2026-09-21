@@ -78,6 +78,25 @@ Va `muted` + `playsinline` a propósito: sin eso iOS lo abre en pantalla complet
 falla, no existe, o hay movimiento reducido, `abrir()` salta directo a la invitación — nunca hay
 una pantalla de la que no se pueda salir.
 
+**Lluvia de pétalos.** `.petals` es una capa fija (`z-index: 50`, por debajo de la escena del
+sobre) que `lluviaDePetalos()` llena al abrir la invitación, junto con `revelar()`. Cada pétalo son
+tres elementos anidados porque las tres animaciones se pisarían si compartieran `transform`:
+`.petal` cae (linear — un pétalo real cae a velocidad terminal constante), `.petal__sway` hace el
+vaivén horizontal (ease-in-out, `alternate`) y `.petal__img` voltea en 3D. Las tres duraciones se
+sortean en rangos que no son múltiplos entre sí (caída 13-26 s, vaivén 3-6 s, volteo 4-9 s), así la
+combinación no se repite a la vista. Todo lo que varía por pétalo viaja en custom properties inline.
+
+Los tres niveles van en `overflow: visible`: la imagen se sale de su caja al voltear y cualquier recorte intermedio corta el pétalo. El único recorte que toca es el de `.petals`, en el borde de la pantalla.
+
+El ángulo inicial va en la propiedad individual `rotate`, no en `transform`: así se **compone** con
+la animación de volteo en lugar de sustituirla. El eje de `rotate3d` va sesgado hacia Z (`--az`
+0,8-1 contra 0,1-0,38 en X/Y); con X/Y dominantes el pétalo pasa demasiado tiempo de canto y ahí se
+lee como una astilla blanca, no como un pétalo. Los retardos son negativos y escalonados para que al
+abrir el sobre la pantalla ya esté poblada. Un cuarto de los pétalos lleva `.petal--far`: más
+pequeños, borrosos y pálidos, para dar profundidad y no competir con el texto. Con `prefers-reduced-motion`
+la capa va `display: none` — la regla global deja las animaciones en .001 ms, que los congelaría a
+media caída— y `lluviaDePetalos()` ni siquiera crea los nodos.
+
 **Cuenta regresiva.** Anclada a `2026-11-21T16:00:00-05:00` en `js/main.js` (hora de Colombia fija,
 para que el conteo sea igual en cualquier huso). El aviso para lectores de pantalla se emite una vez
 por minuto, no cada segundo. Al llegar a cero se detiene el intervalo y cambia el título de la sección.
@@ -94,6 +113,20 @@ aparecen espejados o inclinados.
 **Movimiento reducido.** El bloque `@media (prefers-reduced-motion: reduce)` anula duración *y
 retardo* de animaciones y transiciones. Si se agrega un `transition-delay` nuevo, hay que confirmar
 que ese bloque lo neutraliza; de lo contrario el contenido se queda invisible.
+
+## `overflow-x` nunca en el selector universal
+
+`overflow-x: hidden` va en `html` y `body`, y en ningún caso en `*`. Por especificación,
+`overflow-x: hidden` junto a `overflow-y: visible` obliga a `overflow-y` a calcularse como
+`auto`: con la regla en el selector universal, **todo** elemento cuyo contenido sobresalga un
+píxel de su caja se vuelve un contenedor con scroll y pinta su barra al lado. Pasaba con
+`.hero__title`, `.hero__names`, cada `.section__title` y las cifras de `.clock__num` —su
+`line-height` es más apretado que el alto real de los glifos de Merriweather— y con los pétalos,
+que se salen de su caja al voltear.
+
+Las secciones que necesitan recorte ya lo piden ellas (`.section`, `.hero`, `.closing`); las que
+quieren que los adornos sangren lo anulan con `overflow: initial`. La contención horizontal de la
+página la hace el `overflow-x: hidden` de `html`/`body`, que es donde corresponde.
 
 ## Costuras entre secciones
 
@@ -128,6 +161,11 @@ de relleno que trae el exportador. Sin eso el navegador tiene que descargar los 
 antes de pintar un solo fotograma. Al reemplazarlo hay que rehacer ese remux —o exportar ya con
 faststart— y revisar el peso: 12,7 MB para 8 s es ~12 Mbps, muchísimo para abrir la invitación
 desde datos móviles.
+
+`assets/petals/petal1-6.png` son los originales de la lluvia de pétalos; la página carga
+`assets/opt/petal*.webp`, recortados a su bbox de alfa y reducidos a 200 px de lado mayor
+(`quality=88, alpha_quality=100`) — se pintan entre 22 y 52 px, así que 200 px cubre pantallas
+3x de sobra y los seis juntos pesan ~50 KB.
 
 `assets/dresscode.png` es una lámina ya compuesta (títulos, listas y figuras) y **va tal cual**: el
 cliente pidió expresamente no recortarla ni retocarla. `dresscode.webp` es esa misma imagen a su

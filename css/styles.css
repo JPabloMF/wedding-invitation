@@ -56,9 +56,17 @@
   --ease: cubic-bezier(.22,.68,.28,1);
 }
 
-*, *::before, *::after{ box-sizing: border-box; overflow-x: hidden; }
+/* El `overflow-x: hidden` va en html/body, NUNCA en el selector universal: por
+   especificación, `overflow-x: hidden` con `overflow-y: visible` obliga a `overflow-y` a
+   calcularse como `auto`, así que la regla universal convertía en contenedor con scroll a
+   todo elemento cuyo contenido sobresaliera un píxel de su caja. Los titulares y las cifras
+   del reloj lo hacen —su `line-height` es más apretado que el alto real de los glifos— y
+   salían con una barra de desplazamiento al lado. Las secciones que necesitan recorte ya lo
+   piden ellas (`.section`, `.hero`, `.closing`); las que quieren que los adornos sangren lo
+   anulan con `overflow: initial`. */
+*, *::before, *::after{ box-sizing: border-box; }
 
-html{ -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+html{ -webkit-text-size-adjust: 100%; scroll-behavior: smooth; overflow-x: hidden; }
 
 body{
   margin: 0;
@@ -748,7 +756,7 @@ img.deco--arch{
   height: 29px;
 }
 .timeline-section .recorte_cream_after.itinerario{
-  top: 898px;
+  top: 912px;
   height: 29px;
 }
 
@@ -981,6 +989,101 @@ img.deco--arch{
   .hero__floral--bottom{ left: -3%; width: min(420px, 34vw); }
 }
 
+/* =========================================================
+   Lluvia de pétalos
+   =========================================================
+   Capa fija sobre toda la invitación (por debajo de la escena del sobre, z-index 100).
+   Los pétalos los crea `js/main.js` al abrir el sobre; cada uno son tres elementos
+   anidados y cada nivel lleva UNA sola animación, porque las tres se pisarían si
+   compartieran `transform`:
+
+     .petal        caída vertical + aparición/desaparición   (linear, la velocidad
+                                                              terminal de un pétalo
+                                                              real es constante)
+     .petal__sway  vaivén horizontal                         (ease-in-out, alternate)
+     .petal__img   volteo en 3D sobre un eje propio          (linear)
+
+   Las tres duraciones se sortean en rangos que no son múltiplos entre sí (caída
+   12-26 s, vaivén 3-6 s, volteo 4-9 s), así la combinación no se repite a la vista.
+   Todo lo que varía entre pétalos llega por custom properties en el `style` inline. */
+
+.petals{
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  overflow: hidden;
+  pointer-events: none;
+  contain: strict;          /* aísla el repintado del resto de la página */
+  opacity: 0;
+  transition: opacity 1.6s var(--ease);
+  --scale: 1;
+}
+.petals.is-active{ opacity: 1; }
+
+/* Los tres niveles se quedan en `overflow: visible` a propósito: la imagen se sale de su
+   caja al voltear, y si alguno recortara se vería el pétalo cortado. El único recorte que
+   toca es el de `.petals`, en el borde de la pantalla. */
+.petal{
+  overflow: visible;
+  position: absolute;
+  top: 0;
+  left: var(--x);
+  width: calc(var(--size) * var(--scale));
+  animation: petal-fall var(--fall) linear var(--delay) infinite;
+  will-change: transform, opacity;
+}
+
+.petal__sway{
+  overflow: visible;
+  perspective: 900px;       /* punto de fuga propio: el volteo gira sobre su centro */
+  animation: petal-sway var(--sway) ease-in-out var(--sway-delay) infinite alternate;
+  will-change: transform;
+}
+
+/* `rotate` es la propiedad individual, no `transform`: se compone con la animación de
+   volteo en lugar de sustituirla, y da a cada pétalo un ángulo de partida distinto. */
+.petal__img{
+  overflow: visible;
+  width: 100%;
+  height: auto;
+  rotate: var(--r0);
+  opacity: var(--op);
+  animation: petal-spin var(--spin) linear infinite;
+  animation-direction: var(--spin-dir);
+  will-change: transform;
+}
+
+/* Los pétalos del fondo van borrosos y pálidos: da profundidad de campo y, sobre todo,
+   evita que compitan con el texto. Son pocos porque `filter` sí cuesta pintar. */
+.petal--far .petal__img{ filter: blur(1px); }
+
+@keyframes petal-fall{
+  0%   { transform: translate3d(0, -18vh, 0); opacity: 0; }
+  7%   { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translate3d(0, 112vh, 0); opacity: 0; }
+}
+
+@keyframes petal-sway{
+  from{ transform: translate3d(calc(var(--drift) * -1), 0, 0); }
+  to  { transform: translate3d(var(--drift), 0, 0); }
+}
+
+@keyframes petal-spin{
+  from{ transform: rotate3d(var(--ax), var(--ay), var(--az), 0deg); }
+  to  { transform: rotate3d(var(--ax), var(--ay), var(--az), 360deg); }
+}
+
+/* En pestaña oculta las animaciones se congelan: no sirven de nada y el navegador
+   sigue componiendo capas. */
+.petals.is-paused .petal,
+.petals.is-paused .petal__sway,
+.petals.is-paused .petal__img{ animation-play-state: paused; }
+
+@media (max-width: 560px){
+  .petals{ --scale: .95; }
+}
+
 @media (prefers-reduced-motion: reduce){
   html{ scroll-behavior: auto; }
   *, *::before, *::after{
@@ -991,6 +1094,7 @@ img.deco--arch{
     transition-delay: 0s !important;
   }
   .reveal{ opacity: 1; transform: none; }
+  .petals{ display: none; }
   .flourish__line, .flourish__leaf, .flourish__stem{ stroke-dashoffset: 0; }
 }
 
