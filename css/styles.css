@@ -98,7 +98,7 @@ img{ max-width: 100%; height: auto; display: block; }
 .kicker{
   font-family: var(--sans);
   font-weight: 400;
-  font-size: .82rem;
+  font-size: 1.4rem;
   letter-spacing: .3em;
   text-indent: .3em;
   color: var(--tan-deep);
@@ -296,7 +296,7 @@ body.is-open .invitation{ opacity: 1; }
 .hero__inner{ max-width: 30rem; }
 
 .hero__eyebrow{
-  font-size: .82rem;
+  font-size: 1.5rem;
   letter-spacing: .14em;
   color: var(--ink-soft);
   margin: 0 0 1.6rem;
@@ -335,12 +335,12 @@ body.is-open .invitation{ opacity: 1; }
 @keyframes draw{ to{ stroke-dashoffset: 0; } }
 
 .hero__names{
+  font-size: 2rem;
   font-family: var(--serif);
   font-weight: 300;
-  font-size: clamp(1.3rem, .95rem + 2.2vw, 2rem);
   line-height: 1.3;
   color: var(--ink);
-  margin: 0 0 1.1rem;
+  margin: 2rem 0;
 }
 /* El "&" en Pinyon: sustituye a la cursiva que Merriweather no tiene y rima con
    .closing__names, que ya usa la misma letra. */
@@ -358,9 +358,8 @@ body.is-open .invitation{ opacity: 1; }
 }
 
 .hero__date{
-  font-size: .86rem;
+  font-size: 1.2rem;
   letter-spacing: .12em;
-  color: var(--ink-soft);
   margin: 0;
 }
 
@@ -377,8 +376,9 @@ body.is-open .invitation{ opacity: 1; }
   animation: float-a 11s ease-in-out infinite;
 }
 .hero__floral--bottom{
-  bottom: -2%;
-  left: -18%;
+  opacity: 1;
+  bottom: 36%;
+  left: 12%;
   width: min(360px, 74vw);
   transform: scaleX(-1);
   animation: float-b 13s ease-in-out infinite;
@@ -489,11 +489,11 @@ body.is-open .invitation{ opacity: 1; }
 
 .countdown__date{
   font-family: var(--serif);
-  font-size: clamp(1.35rem, .95rem + 1.9vw, 1.85rem);
+  font-size: 1.5rem;
   margin: 2rem 0 .2rem;
 }
 .countdown__time{
-  font-size: .82rem;
+  font-size: 1.2rem;
   letter-spacing: .2em;
   text-indent: .2em;
   text-transform: uppercase;
@@ -505,9 +505,7 @@ body.is-open .invitation{ opacity: 1; }
 
 .verse-section{
   padding-block: clamp(4.4rem, 12vw, 7rem);
-  /* background:
-    radial-gradient(78% 62% at 50% 48%, rgba(255,232,190,.42) 0%, rgba(255,232,190,0) 72%),
-    var(--cream-warm); */
+  overflow: initial;
   text-align: center;
 }
 .verse-section .wrap{ margin: 0 auto; }
@@ -522,14 +520,18 @@ body.is-open .invitation{ opacity: 1; }
   margin: 0 auto;
   text-wrap: balance;
 }
-.verse-section::after {
+.recorte_cream_after, .recorte_cream_before {
   content: "";
-  position: absolute; inset: 0;
-  top: -27px; left: 0;
-  z-index: 10;
-  background-image: url("../assets/recorte_cream.png");
+  position: absolute;
+  inset: 0;
+  top: 300px;
+  left: 0;
+  z-index: 20;
+  background-image: url(../assets/recorte_cream.png);
   background-repeat: no-repeat;
   background-size: contain;
+  height: 29px;
+  transform: rotate(180deg);
 }
 .verse__rule{
   display: block;
@@ -549,25 +551,21 @@ body.is-open .invitation{ opacity: 1; }
   color: var(--tan-deep);
 }
 
-.deco--verse{
-  top: clamp(.6rem, 3vw, 1.6rem);
-  left: -9%;
-  width: min(186px, 38vw);
-  opacity: .72;
-  transform: rotate(6deg);
-  animation: float-a 12s ease-in-out infinite;
-}
+
 
 /* ---------- 4. Ubicación ---------- */
 
 .location .wrap{ text-align: center; }
+.location .wrap.location__card {
+  margin-top: 310px;
+  margin-bottom: 59px;
+  width: min(80% - var(--pad) * 2, var(--measure));
+}
 
 .card--location{
   margin-top: 1.2rem;
   padding: clamp(2rem, 6vw, 2.8rem) clamp(1.4rem, 5vw, 2.6rem);
-  background: #fff;
   border-left: 3px solid var(--tan);
-  box-shadow: var(--shadow-soft);
 }
 .venue{
   font-family: var(--serif);
@@ -611,20 +609,18 @@ body.is-open .invitation{ opacity: 1; }
 }
 
 /* Versículo */
-.deco--verse-gypso{
-  right: -14%;
-  bottom: 6%;
+.deco--verse{
+  z-index: 25;
+  bottom: 0;
+  left: -22%;
   width: min(205px, 46vw);
-  opacity: .45;
-  transform: scaleX(-1);
-  animation: float-b 13s ease-in-out infinite;
 }
-.deco--verse-candle{
-  left: 7%;
-  bottom: 11%;
-  width: min(62px, 15vw);
-  opacity: .85;
-  animation: float-a 12s ease-in-out infinite;
+
+.deco--verse-gypso{
+  right: -22%;
+  bottom: 0%;
+  z-index: 25;
+  width: min(205px, 46vw);
 }
 
 /* Ubicación */
@@ -656,11 +652,12 @@ body.is-open .invitation{ opacity: 1; }
 }
 
 /* Itinerario */
-.deco--time-candle{
-  top: 1.6rem;
-  right: 7%;
-  width: min(68px, 16vw);
-  opacity: .85;
+.deco--time-flowers{
+  z-index: 25;
+  top: -4.4rem;
+  right: 0%;
+  width: 100%;
+  max-width: 100%;
   animation: float-a 12s ease-in-out infinite;
 }
 .deco--time-gypso{
@@ -676,18 +673,17 @@ body.is-open .invitation{ opacity: 1; }
   top: -1%;
   left: -13%;
   width: min(200px, 46vw);
-  opacity: .6;
-  z-index: 2;
+  z-index: 25;
   animation: float-a 13s ease-in-out infinite;
 }
-.deco--rsvp-candle{
-  bottom: 7%;
-  right: 5%;
-  width: min(74px, 17vw);
-  opacity: .9;
-  z-index: 2;
-  animation: float-b 11s ease-in-out infinite;
-}
+.deco--rsvp-roses.left {
+  left: 0;
+ }
+.deco--rsvp-roses.right { 
+  right: 0;
+  left: initial;
+  transform: rotateY(180deg);
+ }
 
 /* Cierre */
 .deco--closing-roses{
@@ -698,13 +694,15 @@ body.is-open .invitation{ opacity: 1; }
   transform: scaleX(-1);
   animation: float-a 14s ease-in-out infinite;
 }
-.deco--candle{
-  right: 6%;
-  top: 2.2rem;
-  width: min(86px, 20vw);
-  opacity: .85;
-  animation: float-b 9s ease-in-out infinite;
+img.deco--arch{
+  right: -39%;
+  top: -0.8rem;
+  z-index: 25;
+  width: 490vw;
+  max-width: 180%;
 }
+
+
 
 /* ---------- 5. Vestimenta ---------- */
 
@@ -738,11 +736,20 @@ body.is-open .invitation{ opacity: 1; }
 /* ---------- 6. Itinerario ---------- */
 
 .timeline-section{
-  background: linear-gradient(180deg,
-    #F2F3E7 0%,
-    var(--cream) 22%,
-    var(--cream) 62%,
-    #F7F0E3 100%);
+  padding-top: 17vh;
+  padding-bottom: 0;
+  background-color: var(--cream);
+  overflow: initial;
+}
+
+.timeline-section .recorte_cream_before.itinerario{
+  transform: rotate(360deg);
+  top: -20px;
+  height: 29px;
+}
+.timeline-section .recorte_cream_after.itinerario{
+  top: 898px;
+  height: 29px;
 }
 
 .timeline{
@@ -886,12 +893,25 @@ body.is-open .invitation{ opacity: 1; }
   padding: 0 var(--pad) clamp(3.5rem, 10vw, 5.5rem);
   text-align: center;
   overflow: hidden;
+  padding-top: 100px;
+  padding-bottom: 100px;
 }
-.closing__divider{
-  width: min(520px, 96%);
-  margin: clamp(2.4rem, 8vw, 3.8rem) auto clamp(1.8rem, 5vw, 2.8rem);
-  opacity: .95;
+.closing::before{
+  content: "";
+  position: absolute; inset: 0;
+  background-image: linear-gradient(to bottom, #F1E7D6, rgba(255, 255, 255, 0)), url(../assets/us.jpeg);
+  background-size: 238%;
+  background-repeat: no-repeat;
+  background-position-x: center;
+  z-index: 1;
+  opacity: 0.4;
 }
+.closing__lamps{
+  position: absolute;
+  opacity: 1;
+}
+.closing__lamps.left{ transform: scaleX(-1); }
+.closing__lamps.right{ transform: scaleX(1); }
 .closing__text{
   font-family: var(--serif);
   font-size: clamp(1.25rem, 1rem + 1.6vw, 1.75rem);
@@ -900,14 +920,13 @@ body.is-open .invitation{ opacity: 1; }
 }
 .closing__names{
   font-family: var(--script);
-  font-size: clamp(2.2rem, 1.4rem + 4vw, 3.4rem);
+  font-size: 3.5rem;
   line-height: 1.3;
-  color: var(--tan-deep);
   margin: 0 0 .6rem;
 }
 .closing__names em{ font-style: normal; }
 .closing__date{
-  font-size: .76rem;
+  font-size: 1.2rem;
   letter-spacing: .28em;
   text-indent: .28em;
   color: var(--ink-soft);
