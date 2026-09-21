@@ -744,7 +744,7 @@ img.deco--arch{
 /* ---------- 6. Itinerario ---------- */
 
 .timeline-section{
-  padding-top: 17vh;
+  padding-top: 17svh;
   padding-bottom: 0;
   background-color: var(--cream);
   overflow: initial;
@@ -756,7 +756,8 @@ img.deco--arch{
   height: 29px;
 }
 .timeline-section .recorte_cream_after.itinerario{
-  top: 898px;
+  top: auto;
+  bottom: -27px;
   height: 29px;
 }
 
