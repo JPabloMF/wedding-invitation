@@ -189,10 +189,10 @@ body.is-sealed{ overflow: hidden; height: 100%; }
   inset: 0;
   z-index: 100;
   overflow: hidden;
-  /* Paspartú del color del borde del video (muestreado: esquinas #9DA596–#A6AE9F,
-     centro de los bordes #C6C7BD–#CCCDC2), para que las bandas del `contain` no se
-     lean como bandas. Si se reemplaza el video hay que volver a muestrear. */
-  background: radial-gradient(62% 50% at 50% 45%, #E4E5DC 0%, #D6D8CB 58%, #C3C7B9 100%);
+  /* Paspartú del color del borde del video (muestreado: arriba #F2EEE8, medio #EBE7DF,
+     abajo #E2DCD3), para que las bandas del `contain` no se lean como bandas.
+     Si se reemplaza el video hay que volver a muestrear. */
+  background: linear-gradient(180deg, #F3EFE9 0%, #EDE9E1 55%, #E1DBD2 100%);
   transition:
     opacity 1s var(--ease),
     visibility 1s linear;
@@ -203,9 +203,11 @@ body.is-open .envelope-scene{
   pointer-events: none;
 }
 
-/* El video es vertical (1080x1920) y trae su propio marco pintado: con `cover` se
-   pierde el sobre por los lados incluso en un móvil de 390 px, así que nunca se recorta.
-   `contain` es la base (pantallas anchas); en vertical se estira a `fill` —ver abajo—. */
+/* El video viene en 9:20 (1080x2400): el original es 1080x1920 y las 240 px de arriba y
+   de abajo son lienzo añadido al recomprimir, estirando la fila del borde —ver CLAUDE.md—.
+   Esa reserva es la que deja `cover` recortar en un móvil sin tocar el sobre, que al
+   desplegarse llega al borde lateral del encuadre original. `contain` es la base para
+   pantallas anchas, donde `cover` sí se comería el sobre. */
 .envelope-video{
   position: absolute;
   inset: 0;
@@ -216,12 +218,12 @@ body.is-open .envelope-scene{
   display: block;
 }
 
-/* En vertical el sobre llena la pantalla aunque se deforme: el cliente prefiere eso
-   a las bandas del paspartú. El estiramiento va de ~20% en un móvil normal (9:19,5)
-   a ~25% en los más alargados; pasado 3/4 de proporción volvemos a `contain`, porque
-   en una ventana de escritorio `fill` estiraría el video casi el triple a lo ancho. */
-@media (max-aspect-ratio: 3 / 4){
-  .envelope-video{ object-fit: fill; }
+/* En vertical (hasta 9:16) el video llena la pantalla sin bandas y sin deformarse: lo que
+   se recorta es el lienzo añadido. En el caso más ancho de este tramo se pierde el 10%
+   de arriba y de abajo, y el sobre desplegado ocupa del 22% al 79%, así que nunca entra
+   en el recorte. */
+@media (max-aspect-ratio: 9 / 16){
+  .envelope-video{ object-fit: cover; }
 }
 
 /* Capa de click a pantalla completa: el video no es interactivo. */
@@ -244,12 +246,13 @@ body.is-open .envelope-scene{
 }
 
 .envelope-open__hint{
-  font-size: .78rem;
+  margin-bottom: 25px;
+  font-size: 1rem;
   letter-spacing: .26em;
   text-indent: .26em;
   text-transform: uppercase;
   color: var(--ink);
-  padding: .7em 1.4em;
+  padding: .7em 2.5em;
   border-radius: 999px;
   background: rgba(255,251,243,.78);
   backdrop-filter: blur(6px);

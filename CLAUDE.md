@@ -57,18 +57,25 @@ El `setTimeout` tiene que seguir siendo mayor que la transición de `.envelope-s
 se corta a media salida.
 
 **Video de apertura.** `.envelope-scene` es una capa fija con `<video id="envelope-video">` a
-pantalla completa. El video es vertical (1080×1920) y **trae su propio marco pintado**, así que va
-con `object-fit: fill` en vertical (`max-aspect-ratio: 3/4`) y `contain` en pantallas anchas. Con
-`cover` el sobre se sale del encuadre incluso en un móvil de 390 px, así que no se recorta nunca; en
-vertical el cliente prefiere el estiramiento (~20-25%) antes que las bandas, pero en escritorio
-`fill` deformaría el video casi el triple a lo ancho, de ahí el corte por proporción y no por ancho.
-El fondo de `.envelope-scene` es un radial muestreado del borde del video (esquinas #9DA596–#A6AE9F,
-centro de los bordes #C6C7BD–#CCCDC2) para que las bandas del `contain` no se lean como bandas; al
-reemplazar el video hay que volver a muestrear esos bordes y reajustar el radial. El `<video>` no es interactivo: encima va
-`.envelope-open`, un `<button>` a pantalla completa que recibe el click y sostiene el aviso
-«Toca para abrir».
+pantalla completa. El original es vertical (1080×1920, 5 s) y al desplegarse el sobre llega al borde
+lateral del encuadre: con `cover` se pierden las solapas incluso en un móvil de 390 px, y con
+`contain` quedan bandas arriba y abajo. La salida está en **9:20 (1080×2400)**: al recomprimir se le
+añaden 240 px de lienzo arriba y abajo estirando la fila del borde (ver el comando en «Imágenes»).
+El fondo del video es papel crema liso, así que ese estirado no se nota, y al ser parte del video
+acompaña al fundido a blanco del final —un relleno fijo en CSS se delataría justo ahí—.
 
-El `poster` (`assets/opt/intro-poster.webp`, el primer fotograma a 720×1280) **no es opcional**: los
+Con esa reserva, `object-fit: cover` hasta 9:16 (`@media (max-aspect-ratio: 9/16)`) llena la pantalla
+del móvil sin bandas y sin deformar: lo único que se recorta es el lienzo añadido. En el caso más
+ancho de ese tramo se pierde el 10% de arriba y de abajo, y el sobre desplegado ocupa del 22% al 79%.
+Por encima de 9:16 vuelve a `contain`, porque ahí `cover` sí se comería el sobre; las bandas
+laterales se funden con el fondo de `.envelope-scene`, un degradado vertical muestreado del borde del
+video (arriba #F2EEE8, medio #EBE7DF, abajo #E2DCD3) que coincide con él dentro de ~3 por canal. Al
+reemplazar el video hay que rehacer el lienzo, volver a muestrear esos bordes y reajustar el
+degradado. El `<video>` no es interactivo: encima va `.envelope-open`, un `<button>` a pantalla
+completa que recibe el click y sostiene el aviso «Toca para abrir».
+
+El `poster` (`assets/opt/intro-poster.webp`, el primer fotograma del video ya con lienzo, a
+720×1600) **no es opcional**: los
 navegadores móviles ignoran `preload` para ahorrar datos, así que el video no se descarga hasta que
 se toca y sin póster la primera pantalla sale en blanco. Si se reemplaza el video hay que regenerar
 el póster del nuevo primer fotograma, o al tocar se ve un salto.
@@ -155,12 +162,25 @@ El divisor del cierre va recortado a su bbox de alfa (`getchannel('A').getbbox()
 de su ancho máximo en CSS— con `quality=95, alpha_quality=100`; el PNG original trae dos tercios de
 lienzo vacío que descuadran los márgenes si no se recorta. `assets/opt/pareja.jpg` se conserva aparte porque es el `og:image` para compartir.
 
-`assets/intro.mp4` es el original del video de apertura; la página carga `assets/opt/intro.mp4`,
-que es el mismo archivo con el box `moov` movido delante de `mdat` (*faststart*) y sin el box `uuid`
-de relleno que trae el exportador. Sin eso el navegador tiene que descargar los 12,7 MB completos
-antes de pintar un solo fotograma. Al reemplazarlo hay que rehacer ese remux —o exportar ya con
-faststart— y revisar el peso: 12,7 MB para 8 s es ~12 Mbps, muchísimo para abrir la invitación
-desde datos móviles.
+`assets/intro2.mp4` es el original vigente del video de apertura (`assets/intro.mp4` es el de la
+versión anterior, ya sin uso). La página carga `assets/opt/intro.mp4`, que es ese original
+recomprimido con ffmpeg y con el lienzo extendido a 1080×2400 — 7,5 MB (12 Mbps, imposible desde
+datos móviles) bajan a 2,2 MB (~3,5 Mbps):
+
+```bash
+ffmpeg -i assets/intro2.mp4 -filter_complex "
+  [0:v]crop=1080:4:0:0,scale=1080:240:flags=bilinear,setsar=1[top];
+  [0:v]crop=1080:4:0:1916,scale=1080:240:flags=bilinear,setsar=1[bot];
+  [0:v]setsar=1[mid];
+  [top][mid][bot]vstack=inputs=3,format=yuv420p[v]" -map "[v]"   -an -c:v libx264 -preset slow -crf 20 -profile:v high -movflags +faststart   assets/opt/intro.mp4
+```
+
+Los `setsar=1` no son opcionales: sin ellos el `crop` de 4 px deja un SAR de 60:1 y el archivo sale
+con una relación de aspecto declarada de 27:1.
+El `+faststart` deja el box `moov` delante de `mdat` y descarta el `uuid` de relleno del exportador;
+sin eso el navegador tiene que descargar el archivo entero antes de pintar un fotograma. El `-an`
+quita la pista de audio: el `<video>` va `muted`, así que no se oye nunca. Si no hay ffmpeg a mano,
+`python -m pip install imageio-ffmpeg` trae el binario (`imageio_ffmpeg.get_ffmpeg_exe()`).
 
 `assets/petals/petal1-6.png` son los originales de la lluvia de pétalos; la página carga
 `assets/opt/petal*.webp`, recortados a su bbox de alfa y reducidos a 200 px de lado mayor
