@@ -83,11 +83,13 @@ el póster del nuevo primer fotograma, o al tocar se ve un salto.
 Va como `background` del `<video>` en CSS, **no** en el atributo `poster`: Safari de iOS ignora
 `object-fit` al pintar el `poster` y siempre lo encaja entero, así que en un iPhone dejaba dos
 bandas claras a los lados durante toda la pantalla de «Toca para abrir». Como fondo lo gobierna
-`background-size: cover` y llena la pantalla igual que el video. Por la misma desconfianza, el
-recorte en vertical no se deja solo en `object-fit`: la caja del `<video>` se estira al ancho de la
-pantalla con `height: auto` (más `min-height: 100%` para el rato anterior a los metadatos, cuando
-un `<video>` mide 300×150) y lo que sobra arriba y abajo lo corta el `overflow: hidden` de
-`.envelope-scene`.
+`background-size: cover` y llena la pantalla igual que el video.
+
+La caja del `<video>` se queda en la pantalla entera y el recorte lo hace `object-fit`. Se probó a
+estirarla con `width: 100%; height: auto` para que el recorte lo hiciera el `overflow: hidden` de
+`.envelope-scene` en vez de `object-fit`: el póster llenaba bien —es un `background`— pero Safari de
+iOS pintaba el video dentro de esa caja mucho más pequeño, y póster y video quedaban con encuadres
+distintos. Caja fija más `object-fit` es lo único que los deja iguales.
 
 Va `muted` + `playsinline` a propósito: sin eso iOS lo abre en pantalla completa y Chrome bloquea
 `play()`. Al terminar (`ended`) se libera el `src` para no dejar 12 MB en memoria. Si el video

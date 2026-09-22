@@ -229,23 +229,13 @@ body.is-open .envelope-scene{
    de arriba y de abajo, y el sobre desplegado ocupa del 22% al 79%, así que nunca entra
    en el recorte.
 
-   El recorte no se deja solo en manos de `object-fit`: la caja se estira al ancho de la
-   pantalla con la altura que pida la proporción del archivo (1080x2400) y lo que sobra
-   por arriba y por abajo lo corta el `overflow: hidden` de .envelope-scene. Así llena la
-   pantalla incluso en navegadores que tratan el `object-fit` del <video> a su manera.
-   El `min-height` cubre el rato anterior a los metadatos, cuando un <video> mide
-   300x150 y `height: auto` lo dejaría como una franja. */
+   La caja se queda en la pantalla entera y el recorte lo hace `object-fit`. Se probó a
+   estirarla con `height: auto` para que el recorte lo hiciera el `overflow` de
+   .envelope-scene y no `object-fit`: el póster (que es un `background`) llenaba bien, pero
+   Safari de iOS pintaba el video dentro de esa caja mucho más pequeño. Caja fija y
+   `object-fit` es lo único que deja póster y video con el mismo encuadre. */
 @media (max-aspect-ratio: 9 / 16){
-  .envelope-video{
-    inset: auto;
-    top: 50%;
-    left: 50%;
-    translate: -50% -50%;
-    width: 100%;
-    height: auto;
-    min-height: 100%;
-    object-fit: cover;
-  }
+  .envelope-video{ object-fit: cover; }
 }
 
 /* Capa de click a pantalla completa: el video no es interactivo. */
