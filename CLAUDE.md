@@ -74,11 +74,20 @@ reemplazar el video hay que rehacer el lienzo, volver a muestrear esos bordes y 
 degradado. El `<video>` no es interactivo: encima va `.envelope-open`, un `<button>` a pantalla
 completa que recibe el click y sostiene el aviso «Toca para abrir».
 
-El `poster` (`assets/opt/intro-poster.webp`, el primer fotograma del video ya con lienzo, a
+El póster (`assets/opt/intro-poster.webp`, el primer fotograma del video ya con lienzo, a
 720×1600) **no es opcional**: los
 navegadores móviles ignoran `preload` para ahorrar datos, así que el video no se descarga hasta que
 se toca y sin póster la primera pantalla sale en blanco. Si se reemplaza el video hay que regenerar
 el póster del nuevo primer fotograma, o al tocar se ve un salto.
+
+Va como `background` del `<video>` en CSS, **no** en el atributo `poster`: Safari de iOS ignora
+`object-fit` al pintar el `poster` y siempre lo encaja entero, así que en un iPhone dejaba dos
+bandas claras a los lados durante toda la pantalla de «Toca para abrir». Como fondo lo gobierna
+`background-size: cover` y llena la pantalla igual que el video. Por la misma desconfianza, el
+recorte en vertical no se deja solo en `object-fit`: la caja del `<video>` se estira al ancho de la
+pantalla con `height: auto` (más `min-height: 100%` para el rato anterior a los metadatos, cuando
+un `<video>` mide 300×150) y lo que sobra arriba y abajo lo corta el `overflow: hidden` de
+`.envelope-scene`.
 
 Va `muted` + `playsinline` a propósito: sin eso iOS lo abre en pantalla completa y Chrome bloquea
 `play()`. Al terminar (`ended`) se libera el `src` para no dejar 12 MB en memoria. Si el video
