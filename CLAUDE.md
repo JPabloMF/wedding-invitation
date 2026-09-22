@@ -245,6 +245,24 @@ sin eso el navegador tiene que descargar el archivo entero antes de pintar un fo
 quita la pista de audio: el `<video>` va `muted`, así que no se oye nunca. Si no hay ffmpeg a mano,
 `python -m pip install imageio-ffmpeg` trae el binario (`imageio_ffmpeg.get_ffmpeg_exe()`).
 
+`assets/us/us1-3.png` son las tres fotos del cierre, ya montadas en su marco de corazón (1254x1254
+con transparencia). La página carga `assets/opt/us*.webp`, que se regeneran así —el recorte va con
+**umbral de alfa 8**, no con `getbbox()` a secas: el PNG trae un halo casi transparente alrededor
+del marco que descuadra el recorte—:
+
+```python
+from PIL import Image
+for n in ('us1', 'us2', 'us3'):
+    im = Image.open(f'assets/us/{n}.png').convert('RGBA')
+    bb = im.getchannel('A').point(lambda v: 255 if v > 8 else 0).getbbox()   # (93, 10, 1161, 1243)
+    im.crop(bb).resize((420, 484), Image.LANCZOS).save(
+        f'assets/opt/{n}.webp', 'WEBP', quality=88, alpha_quality=100, method=6)
+```
+
+Los 420x484 son el doble del ancho máximo en CSS (224 px la del centro) y son también los atributos
+`width`/`height` de los tres `<img>` del cierre: si el marco cambia de proporción hay que
+actualizarlos. En el HTML el orden es us1, **us3**, us2 —la del centro es la tercera—.
+
 `assets/petals/petal1-6.png` son los originales de la lluvia de pétalos; la página carga
 `assets/opt/petal*.webp`, recortados a su bbox de alfa y reducidos a 200 px de lado mayor
 (`quality=88, alpha_quality=100`) — se pintan entre 22 y 52 px, así que 200 px cubre pantallas
