@@ -217,25 +217,35 @@ body.is-open .envelope-scene{
   object-position: center;
   display: block;
   /* El póster va de fondo y no en el atributo `poster`: Safari de iOS ignora
-     `object-fit` al pintar el póster y siempre lo encaja entero: en un iPhone eso deja dos
-     bandas claras a los lados durante toda la pantalla de «Toca para abrir». Como fondo lo
-     gobierna `background-size: cover` y llena la pantalla igual que el video. Si se
+     `object-fit` al pintar el `poster` y siempre lo encaja entero, con bandas a los lados.
+     Como fondo lo gobierna `background-size`, que va emparejado con el `object-fit` del
+     video en cada tramo —si no coinciden, al tocar se ve un salto de encuadre—. Si se
      reemplaza el video hay que regenerar también esta imagen. */
-  background: url("../assets/opt/intro-poster.webp") center / cover no-repeat;
+  background: url("../assets/opt/intro-poster.webp") center / contain no-repeat;
 }
 
-/* En vertical (hasta 9:16) el video llena la pantalla sin bandas y sin deformarse: lo que
-   se recorta es el lienzo añadido. En el caso más ancho de este tramo se pierde el 10%
-   de arriba y de abajo, y el sobre desplegado ocupa del 22% al 79%, así que nunca entra
-   en el recorte.
+/* En vertical el video llena la pantalla sin bandas y sin deformarse: lo que se recorta es
+   el lienzo añadido. El corte está en 2:3 y no en 9:16 porque la pantalla del teléfono no
+   es lo único que hay: el navegador dentro de WhatsApp —por donde llega la mayoría de los
+   invitados— se come lo suyo con sus barras y deja una ventana bastante más baja que la
+   del móvil desnudo. A 9:16 esos casos caían en `contain` y el sobre salía pequeño y con
+   bandas a los lados.
+
+   Hasta dónde se puede estirar el corte: `cover` recorta (1 - 0,45/R) del alto, la mitad
+   por arriba y la mitad por abajo. El sobre desplegado ocupa del 20% al 81% del encuadre,
+   así que el tope real está en R = 0,75; a 2/3 (0,667) se recorta el 16,2% por lado y
+   quedan unos 3 puntos de margen. Por encima manda `contain`, porque ahí `cover` sí se
+   comería el sobre.
 
    La caja se queda en la pantalla entera y el recorte lo hace `object-fit`. Se probó a
-   estirarla con `height: auto` para que el recorte lo hiciera el `overflow` de
-   .envelope-scene y no `object-fit`: el póster (que es un `background`) llenaba bien, pero
-   Safari de iOS pintaba el video dentro de esa caja mucho más pequeño. Caja fija y
-   `object-fit` es lo único que deja póster y video con el mismo encuadre. */
-@media (max-aspect-ratio: 9 / 16){
-  .envelope-video{ object-fit: cover; }
+   estirarla con `height: auto` para que lo hiciera el `overflow` de .envelope-scene: el
+   póster (que es un `background`) llenaba bien, pero Safari de iOS pintaba el video dentro
+   de esa caja mucho más pequeño. */
+@media (max-aspect-ratio: 2 / 3){
+  .envelope-video{
+    object-fit: cover;
+    background-size: cover;
+  }
 }
 
 /* Capa de click a pantalla completa: el video no es interactivo. */

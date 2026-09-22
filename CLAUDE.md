@@ -64,10 +64,15 @@ añaden 240 px de lienzo arriba y abajo estirando la fila del borde (ver el coma
 El fondo del video es papel crema liso, así que ese estirado no se nota, y al ser parte del video
 acompaña al fundido a blanco del final —un relleno fijo en CSS se delataría justo ahí—.
 
-Con esa reserva, `object-fit: cover` hasta 9:16 (`@media (max-aspect-ratio: 9/16)`) llena la pantalla
-del móvil sin bandas y sin deformar: lo único que se recorta es el lienzo añadido. En el caso más
-ancho de ese tramo se pierde el 10% de arriba y de abajo, y el sobre desplegado ocupa del 22% al 79%.
-Por encima de 9:16 vuelve a `contain`, porque ahí `cover` sí se comería el sobre; las bandas
+Con esa reserva, `object-fit: cover` hasta 2:3 (`@media (max-aspect-ratio: 2/3)`) llena la pantalla
+del móvil sin bandas y sin deformar: lo único que se recorta es el lienzo añadido. El corte está en
+2:3 y no en 9:16 —la proporción del teléfono— porque la ventana real suele ser más baja: el
+navegador dentro de WhatsApp, por donde llega la mayoría de los invitados, se come lo suyo con sus
+barras. Con el corte en 9:16 esos casos caían en `contain` y el sobre salía pequeño y con bandas a
+los lados. El margen: `cover` recorta (1 - 0,45/R) del alto, la mitad por arriba y la mitad por
+abajo, y el sobre desplegado ocupa del 20% al 81% del encuadre, así que el tope real está en
+R = 0,75; a 2/3 se recorta el 16,2% por lado y sobran unos 3 puntos. Por encima vuelve a `contain`,
+porque ahí `cover` sí se comería el sobre; las bandas
 laterales se funden con el fondo de `.envelope-scene`, un degradado vertical muestreado del borde del
 video (arriba #F2EEE8, medio #EBE7DF, abajo #E2DCD3) que coincide con él dentro de ~3 por canal. Al
 reemplazar el video hay que rehacer el lienzo, volver a muestrear esos bordes y reajustar el
@@ -83,7 +88,8 @@ el póster del nuevo primer fotograma, o al tocar se ve un salto.
 Va como `background` del `<video>` en CSS, **no** en el atributo `poster`: Safari de iOS ignora
 `object-fit` al pintar el `poster` y siempre lo encaja entero, así que en un iPhone dejaba dos
 bandas claras a los lados durante toda la pantalla de «Toca para abrir». Como fondo lo gobierna
-`background-size: cover` y llena la pantalla igual que el video.
+`background-size`, que va emparejado con el `object-fit` del video en cada tramo —`cover` con
+`cover`, `contain` con `contain`—: si no coinciden, al tocar se ve un salto de encuadre.
 
 La caja del `<video>` se queda en la pantalla entera y el recorte lo hace `object-fit`. Se probó a
 estirarla con `width: 100%; height: auto` para que el recorte lo hiciera el `overflow: hidden` de
