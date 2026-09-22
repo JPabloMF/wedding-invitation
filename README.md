@@ -44,5 +44,9 @@ se guardan a calidad 82. Si se reemplaza una imagen, hay que regenerar su
 - Diseñada mobile-first (probada a 375 px) y verificada en escritorio.
 - Respeta `prefers-reduced-motion`: sin animaciones para quien las desactiva.
 - Los botones abren Maps y WhatsApp en pestaña nueva.
-- `assets/opt/pareja.jpg` se conserva porque es la imagen de vista previa
-  (`og:image`) al compartir el enlace.
+- Los iconos (`favicon.*`, `apple-touch-icon.png`, `icon-192/512.png`) se regeneran
+  con `python scripts/favicon.py` desde la raíz del repo; `favicon.svg` se edita a mano.
+- La vista previa al compartir el enlace (WhatsApp, Facebook, iMessage) usa
+  `assets/opt/og-cover.jpg` (1200x630, recorte de `assets/us.jpeg`). Las etiquetas
+  `og:`/`twitter:` del `<head>` la apuntan con URL absoluta; si cambia el dominio hay
+  que actualizar `og:url`, `canonical` y las URLs de imagen.

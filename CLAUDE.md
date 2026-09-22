@@ -160,7 +160,12 @@ es un radial que muere antes de los bordes, así que no participa en la cadena.
 nombre: florales a 640–760 px de ancho (600 px las velas) conservando transparencia, fotos a calidad 82.
 El divisor del cierre va recortado a su bbox de alfa (`getchannel('A').getbbox()`) y a 920 px —el doble
 de su ancho máximo en CSS— con `quality=95, alpha_quality=100`; el PNG original trae dos tercios de
-lienzo vacío que descuadran los márgenes si no se recorta. `assets/opt/pareja.jpg` se conserva aparte porque es el `og:image` para compartir.
+lienzo vacío que descuadran los márgenes si no se recorta. `assets/opt/og-cover.jpg` es la portada de la vista previa al compartir el enlace: recorte 1200x630
+(el tamaño que esperan WhatsApp/Facebook) de `assets/us.jpeg` —1600x900, recortado a `(0, 35, 1600, 875)`
+para centrar a la pareja— guardado con `quality=88, optimize, progressive`. Las etiquetas `og:`/`twitter:`
+del `<head>` la referencian con **URL absoluta** (`https://jpablomf.github.io/wedding-invitation/…`):
+los rastreadores no resuelven rutas relativas. Si se cambia el dominio hay que actualizar `og:url`,
+`canonical` y las tres URLs de imagen a la vez.
 
 `assets/intro2.mp4` es el original vigente del video de apertura (`assets/intro.mp4` es el de la
 versión anterior, ya sin uso). La página carga `assets/opt/intro.mp4`, que es ese original
@@ -199,6 +204,20 @@ la imagen, porque es el único acceso a ese contenido para lectores de pantalla.
 Los florales venían de PNG con transparencia; cuantizarlos con paleta dejaba un rectángulo visible
 alrededor de las flores — por eso WebP y no PNG reducido.
 
+## Iconos
+
+`favicon.ico` (16/32/48), `favicon.svg`, `apple-touch-icon.png` (180), `icon-192.png` e
+`icon-512.png` los genera `scripts/favicon.py` con Pillow — un corazón crema (`--cream`) sobre
+cuadrado redondeado sage (`--sage-deep`), dibujado muestreando las bezier con supermuestreo x8
+porque Pillow no traza curvas. `favicon.svg` repite la misma geometría a mano: si se cambia el
+corazón hay que tocar el script **y** el `d` del SVG, o el icono del navegador y el del móvil
+dejan de coincidir.
+
+Los `<link>` del `<head>` van con ruta relativa a propósito: el sitio vive en
+`/wedding-invitation/`, y el `/favicon.ico` que el navegador busca por su cuenta solo lo busca en
+la raíz del dominio, donde no hay nada. `site.webmanifest` es lo que hace que «Añadir a pantalla
+de inicio» use el icono en vez de una captura de la página.
+
 ## Adornos florales
 
 Los `.deco--*` son ~16 imágenes decorativas repartidas por los bordes de todas las secciones
@@ -230,8 +249,8 @@ Medidos en el navegador, sin corregir todavía:
 - **Contraste bajo.** Texto blanco sobre el caramelo del botón: 2,25:1. Las etiquetas doradas
   pequeñas (`--tan-deep` #A5813F): 3,2–3,4:1. Alternativas verificadas: tinta #4A4034 sobre el
   caramelo actual da 4,51:1; `--tan-deep` en #836327 sube las etiquetas a 5,2:1 sobre crema.
-- **`og:image` apunta a `pareja.jpg`**, la foto que se quitó de la página, así que sigue apareciendo
-  al compartir el enlace. `assets/opt/pareja.webp` quedó sin uso.
+- `assets/opt/pareja.webp` y `pareja.jpg` quedaron sin uso desde que la vista previa al compartir
+  pasó a `assets/opt/og-cover.jpg`.
 
 ## Diseño
 
