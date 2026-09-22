@@ -40,6 +40,83 @@
 <link rel="preload" href="fonts/Merriweather.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="fonts/PinyonScript.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="stylesheet" href="css/styles.css" />
+
+<!-- Marco de teléfono en el escritorio. La invitación es solo para móvil: en un navegador
+     de escritorio el documento se vuelve a cargar dentro de un <iframe> de 390x844, que es
+     la única forma de que el viewport real sea el de un teléfono —las unidades `vw` y las
+     media queries del CSS miden el viewport, no el ancho de una columna—. Ver CLAUDE.md.
+
+     El `window.stop()` corta el parseo antes de que exista el <body>: así el documento
+     anfitrión no descarga ni el video ni las imágenes, solo el marco. Por eso el script va
+     al final del <head>, con el <head> ya completo. -->
+<script>
+(function () {
+  var html = document.documentElement;
+
+  // Dentro del marco: solo se marca el documento (la hoja de estilos esconde la barra de
+  // scroll, que en el escritorio delataría el marco y se comería 15 px de ancho).
+  if (window.self !== window.top) { html.className = 'en-marco'; return; }
+
+  // Solo escritorio: `hover`/`pointer` descartan móvil y tableta, que ya van en su tamaño.
+  // Un teléfono en horizontal mide 844 px de ancho y si no se descartara acabaría
+  // mostrando un teléfono diminuto dentro de otro.
+  if (!window.matchMedia('(min-width: 560px) and (hover: hover) and (pointer: fine)').matches) return;
+
+  window.stop();
+  html.className = 'anfitrion';
+
+  var hoja = document.querySelector('link[rel="stylesheet"]');
+  if (hoja) hoja.parentNode.removeChild(hoja);
+
+  var estilo = document.createElement('style');
+  estilo.textContent = [
+    'html.anfitrion, html.anfitrion body{ height:100%; margin:0; overflow:hidden; }',
+    'html.anfitrion body{',
+      'background:radial-gradient(120% 90% at 50% 0%, #EFF3E4 0%, #E7E3D8 45%, #D8D3C5 100%);',
+    '}',
+    /* La caja es siempre 390x844 y el ajuste a la ventana lo hace `scale`: encogiendo la
+       caja cambiaría el viewport de dentro y con él las medidas en `vw` y los puntos de
+       corte del CSS, que es justo lo que el marco existe para fijar. */
+    '.marco{',
+      'width:390px; height:844px; border-radius:2.4rem; overflow:hidden; background:#F7F2E9;',
+      // Centrado con `position`, no con grid: un elemento más alto que su contenedor se
+      // alinea al inicio en grid —la caja mide 844 px siempre— y el marco se salía por abajo.
+      'position:fixed; top:50%; left:50%;',
+      'transform:translate(-50%, -50%) scale(var(--escala,1));',
+      'box-shadow:0 0 0 1px rgba(74,64,52,.14), 0 40px 80px -30px rgba(74,64,52,.5),',
+      ' 0 12px 30px -18px rgba(74,64,52,.4);',
+    '}',
+    '.marco iframe{ display:block; width:100%; height:100%; border:0; }'
+  ].join('');
+  document.head.appendChild(estilo);
+
+  var cuerpo = document.body;
+  if (!cuerpo) { cuerpo = document.createElement('body'); html.appendChild(cuerpo); }
+  while (cuerpo.firstChild) cuerpo.removeChild(cuerpo.firstChild);
+
+  var marco = document.createElement('div');
+  marco.className = 'marco';
+
+  function ajustar() {
+    var escala = Math.min(1, (window.innerHeight - 40) / 844, (window.innerWidth - 40) / 390);
+    marco.style.setProperty('--escala', Math.max(escala, 0.2));
+  }
+  ajustar();
+  window.addEventListener('resize', ajustar);
+
+  var ventana = document.createElement('iframe');
+  ventana.title = 'Invitación de boda de Juan Pablo y Juliana';
+  ventana.setAttribute('allow', 'autoplay');
+  // Que el teclado (espacio, flechas) desplace la invitación y no la página vacía de fuera.
+  ventana.addEventListener('load', function () {
+    try { ventana.contentWindow.focus(); } catch (e) {}
+  });
+  ventana.src = location.href;
+
+  marco.appendChild(ventana);
+  cuerpo.appendChild(marco);
+})();
+</script>
 </head>
 <body class="is-sealed">
 

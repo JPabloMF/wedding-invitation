@@ -47,6 +47,33 @@ una franja clara al lado del video —que es `position: fixed` y solo llega hast
 barra—. Lo cierra `html:has(> body.is-sealed){ overflow: hidden }`. En el móvil no se notaba
 porque allí la barra flota encima.
 
+**Marco de teléfono en el escritorio.** La invitación es solo para móvil. En un navegador de
+escritorio, el script del `<head>` de `index.html` corta el parseo con `window.stop()` —antes de
+que exista el `<body>`, así que el documento anfitrión no descarga ni el video ni las imágenes— y
+vuelve a cargar la misma URL dentro de un `<iframe>` de **390×844** centrado sobre un fondo neutro.
+
+Es un iframe y no una columna de 390 px en CSS porque las unidades `vw` y las media queries miden
+el viewport, no el ancho de un contenedor: una columna dejaría `13vw`, `@media (min-width: 900px)`
+y el `@media (max-aspect-ratio: 2/3)` del video calculando con los 1440 px de la ventana. Dentro
+del iframe el viewport **es** el de un teléfono, así que no hay nada que adaptar y ningún `vw` que
+se escriba en el futuro queda mal.
+
+Detalles que hay que respetar al tocarlo:
+
+- La caja del marco mide siempre 390×844 y el ajuste a ventanas bajas lo hace `transform: scale()`
+  (lo calcula `ajustar()` en cada `resize`). Encogiendo la caja cambiaría el viewport de dentro,
+  que es justo lo que el marco existe para fijar.
+- El marco va centrado con `position: fixed` + `translate(-50%,-50%)`, no con grid: un elemento más
+  alto que su contenedor se alinea al inicio en grid y el marco se salía por abajo.
+- La condición es `(min-width: 560px) and (hover: hover) and (pointer: fine)`. El `pointer`
+  descarta el móvil en horizontal —mide 844 px de ancho y acabaría mostrando un teléfono diminuto
+  dentro de otro— y la tableta, que ya va a su tamaño.
+- Dentro del marco el script marca `html.en-marco` (rama `window.self !== window.top`) y
+  `css/styles.css` le esconde la barra de scroll: en el escritorio es opaca, delata el marco y se
+  come ~15 px del ancho de una invitación calculada a 390 px.
+- Los dos enlaces salientes (Maps y WhatsApp) ya van con `target="_blank"`, así que se abren fuera
+  del marco. Un enlace nuevo sin `target` navegaría dentro del iframe.
+
 **Máquina de estados por clases en `<body>`.** `is-sealed` (inicial, bloquea el scroll) →
 click en `#envelope` → `is-playing` (el video corre) → evento `ended` → `is-open`. Todo lo demás
 cuelga de esas clases en CSS; `js/main.js` solo las alterna, oculta la escena y arranca las
