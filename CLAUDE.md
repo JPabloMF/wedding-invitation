@@ -40,6 +40,13 @@ Dos trampas al capturar pantallas:
 
 ## Arquitectura
 
+**El sello del scroll va en `html`, no solo en `body`.** `body.is-sealed` lleva
+`overflow: hidden`, pero como `html` lleva `overflow-x: hidden` la barra de scroll de la página
+cuelga de `html`: sellando solo el `body` la barra seguía pintada y se comía ~15 px a la derecha,
+una franja clara al lado del video —que es `position: fixed` y solo llega hasta donde empieza la
+barra—. Lo cierra `html:has(> body.is-sealed){ overflow: hidden }`. En el móvil no se notaba
+porque allí la barra flota encima.
+
 **Máquina de estados por clases en `<body>`.** `is-sealed` (inicial, bloquea el scroll) →
 click en `#envelope` → `is-playing` (el video corre) → evento `ended` → `is-open`. Todo lo demás
 cuelga de esas clases en CSS; `js/main.js` solo las alterna, oculta la escena y arranca las
@@ -191,11 +198,18 @@ datos móviles) bajan a 2,2 MB (~3,5 Mbps):
 
 ```bash
 ffmpeg -i assets/intro2.mp4 -filter_complex "
-  [0:v]crop=1080:4:0:0,scale=1080:240:flags=bilinear,setsar=1[top];
-  [0:v]crop=1080:4:0:1916,scale=1080:240:flags=bilinear,setsar=1[bot];
+  [0:v]crop=1080:16:0:0,scale=8:8:flags=area,scale=1080:240:flags=bicubic,setsar=1[top];
+  [0:v]crop=1080:16:0:1904,scale=8:8:flags=area,scale=1080:240:flags=bicubic,setsar=1[bot];
   [0:v]setsar=1[mid];
   [top][mid][bot]vstack=inputs=3,format=yuv420p[v]" -map "[v]"   -an -c:v libx264 -preset slow -crf 20 -profile:v high -movflags +faststart   assets/opt/intro.mp4
 ```
+
+El rodeo por `scale=8:8` es lo que hace presentable el lienzo. La primera versión estiraba una
+fila de 4 px a 240 y el papel no es liso a esa escala: cada variación horizontal de la textura se
+extrudía en una raya vertical y las dos bandas se leían como un barrido. Bajar una tira de 16 px a
+8×8 promedia la textura y volver a subirla deja un degradado limpio. No es un detalle escondido:
+en un móvil alto `cover` apenas recorta, así que esas bandas se ven casi enteras, el 10% de arriba
+y el 10% de abajo de la pantalla.
 
 Los `setsar=1` no son opcionales: sin ellos el `crop` de 4 px deja un SAR de 60:1 y el archivo sale
 con una relación de aspecto declarada de 27:1.

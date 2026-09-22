@@ -182,6 +182,12 @@ img{ max-width: 100%; height: auto; display: block; }
    Sobre (video de apertura)
    ========================================================= */
 
+/* El sobre bloquea el scroll. El `overflow: hidden` tiene que ir también en `html`: como
+   `html` lleva `overflow-x: hidden`, la barra de scroll de la página cuelga de él y no del
+   `body`, así que sellando solo el `body` la barra seguía pintada y se comía ~15 px a la
+   derecha —una franja clara al lado del video, que es fijo y solo llega hasta donde
+   empieza la barra—. En el móvil no se ve porque la barra flota encima. */
+html:has(> body.is-sealed){ overflow: hidden; }
 body.is-sealed{ overflow: hidden; height: 100%; }
 
 .envelope-scene{
