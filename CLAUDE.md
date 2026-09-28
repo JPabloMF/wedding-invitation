@@ -155,16 +155,33 @@ pequeños, borrosos y pálidos, para dar profundidad y no competir con el texto.
 la capa va `display: none` — la regla global deja las animaciones en .001 ms, que los congelaría a
 media caída— y `lluviaDePetalos()` ni siquiera crea los nodos.
 
-**Confirmación personalizada.** Los nombres del pase viajan en la URL (`?g=Ana,Sof%C3%ADa,Juan%20Pablo`)
-y `confirmacion()` en `js/main.js` arma con ellos el saludo, una casilla por persona y el
-`href` de WhatsApp. **No hay ninguna lista de invitados en el repo, y no debe haberla**: el sitio
-es público y cualquier archivo con los nombres quedaría a la vista. `scripts/enlaces.py` genera los
-enlaces desde un CSV que `.gitignore` excluye.
+**Confirmación personalizada.** Los datos del pase viajan en la URL
+(`?g=Familia%20Mart%C3%ADnez&n=4&w=573235942476`) y `confirmacion()` en `js/main.js` arma con
+ellos el saludo, la línea «Invitación válida para N personas» y los dos enlaces de WhatsApp:
 
-El botón tiene que apuntar a `wa.me/<TELEFONO>` y no a `wa.link/dgonhr`: el acortador trae su
-propio `?text=` fijo y no admite un mensaje construido. El `href` de wa.link que queda en el HTML
-es solo el respaldo sin JavaScript; el script lo reemplaza siempre. `TELEFONO` en `js/main.js` es
-el número que hay detrás de ese acortador.
+| Parámetro | Qué lleva |
+| --- | --- |
+| `g` | nombre del pase («Familia Martínez», «Carolina»); se pinta tal cual |
+| `n` | cuántas personas cubre la invitación |
+| `w` | número de WhatsApp al que se responde, solo dígitos y con indicativo |
+| `f` | fecha límite propia de ese enlace (`AAAA-MM-DD`) |
+
+**No hay ninguna lista de invitados en el repo, y no debe haberla**: el sitio es público y
+cualquier archivo con los nombres quedaría a la vista. `scripts/enlaces.py` genera los enlaces
+desde un CSV que `.gitignore` excluye.
+
+La sección no pregunta quién va: son dos botones, **Aceptar invitación** y **No podremos
+asistir**, cada uno con su mensaje ya redactado. Los nombres de quienes asisten los escribe el
+invitado en el chat — el mensaje de aceptación termina con «Por favor, escribe aquí los nombres
+de quienes asistirán:» y una línea en blanco—, porque el enlace solo conoce el nombre del pase.
+La versión anterior pintaba una casilla por invitado con `?g=Ana,Sofía,…`; si vuelve a hacer
+falta, está en el historial.
+
+Los botones tienen que apuntar a `wa.me/<TELEFONO>` y no a `wa.link/dgonhr`: el acortador trae
+su propio `?text=` fijo y no admite un mensaje construido. El `href` de wa.link que queda en el
+HTML es solo el respaldo sin JavaScript; el script lo reemplaza siempre. `TELEFONO` en
+`js/main.js` ya no es el número definitivo sino el **respaldo** de `?w=`: un enlace sin ese
+parámetro (o con basura donde iba el número) sigue llegando a alguien en vez de romperse.
 
 Detalles que hay que respetar:
 
@@ -173,22 +190,20 @@ Detalles que hay que respetar:
   tres emoji del mensaje original de `wa.link` —fuera del BMP, un par suplente en UTF-16 cada
   uno— y después con un corazón del BMP (U+2764 + U+FE0F): los dos se rompen igual, así que no
   es cuestión de elegir mejor el carácter. Las tildes y los «¡» sí llegan bien.
-- Los nombres se pintan con `textContent`, nunca con `innerHTML`: vienen de la URL y la edita
-  cualquiera. Por lo mismo `nombresDelEnlace()` quita los caracteres de control —un salto de
-  línea partiría el texto del mensaje— y topa la lista a `MAX_PASE` nombres de `MAX_NOMBRE`
-  caracteres.
-- El mensaje nombra también a los ausentes: así los novios saben de quién ya tienen respuesta sin
-  cruzarlo contra su lista. Por eso existe el enlace «No podremos acompañarlos», que manda la
-  excusa completa — sin él, el que no va simplemente no responde.
-- Con las casillas vacías el botón no se deshabilita con `aria-disabled` a secas: conserva el
-  `href` (quitarlo lo saca del recorrido del teclado) y lo apunta al mensaje de excusa, para que
-  un «abrir en pestaña nueva» no pueda mandar una confirmación en falso. El click normal se
-  cancela.
-- El saludo, el grupo de casillas y el enlace de excusa nacen con `hidden` en el HTML. Lo sostiene
+- El nombre del pase se pinta con `textContent`, nunca con `innerHTML`: viene de la URL y la
+  edita cualquiera. Por lo mismo `nombreDelPase()` quita los caracteres de control —un salto de
+  línea partiría el texto del mensaje— y topa el nombre a `MAX_NOMBRE` caracteres; `n` se valida
+  entre 1 y `MAX_PERSONAS`, y `w` a 8-15 dígitos.
+- Un valor inválido nunca se inventa ni se muestra a medias: sin `n` válido no se escribe la
+  línea del pase ni el tamaño en el mensaje, y sin `w` válido se usa `TELEFONO`.
+- Sin `n` el texto va en plural (no se sabe cuántos son); con `n=1` todo pasa a singular, incluido
+  el rótulo del segundo botón («No podré asistir») y el saludo («…reservado para ti»).
+- El saludo y la línea del pase nacen con `hidden` en el HTML. Lo sostiene
   `[hidden]{ display: none !important }` en `css/styles.css`; sin ese `!important` cualquier
-  `display` que se le ponga después a `.rsvp__guests` o `.rsvp__list` los descubriría sin
-  parámetro.
-- Con un solo nombre no se pintan casillas —no hay nada que elegir—, solo el saludo y el botón.
+  `display` que se le ponga después los descubriría sin parámetro.
+- `.btn--ghost` (el botón de rechazar) va **después** de `.btn:hover` en la hoja: misma
+  especificidad, así que gana por orden. Si se mueve antes, al pasar el puntero vuelve el
+  caramelo del botón principal.
 - **La fecha límite para confirmar vive en la constante `LIMITE` de `js/main.js`, no en el HTML.**
   Es la misma para todos: si viviera solo en el enlace habría que reenviarlos todos para
   cambiarla. `?f=AAAA-MM-DD` la pisa por invitación (alguien invitado tarde con otro plazo), y
@@ -353,8 +368,8 @@ sigue el borde del lienzo y aparece un rectángulo pálido alrededor.
 ## Datos que cambian con frecuencia
 
 Los enumera `README.md` en una tabla: fecha del conteo, horas del itinerario (`<ol class="timeline">`),
-enlace de WhatsApp (`wa.link/dgonhr`), enlace de Maps, fecha límite en `.rsvp__text`, y los tokens de
-color en `:root`.
+número de WhatsApp (`&w=` en cada enlace, con `TELEFONO` de respaldo), enlace de Maps, fecha
+límite en `LIMITE`, y los tokens de color en `:root`.
 
 ## Pendientes conocidos
 

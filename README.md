@@ -27,38 +27,51 @@ python -m http.server 8000
 | --- | --- |
 | Fecha y hora del conteo | `js/main.js`, variable `objetivo` (hora de Colombia, UTC−5) |
 | Horas del itinerario | `index.html`, sección `<ol class="timeline">` |
-| Número de WhatsApp | `js/main.js`, constante `TELEFONO` (y el `href` de respaldo en `index.html`) |
+| Número de WhatsApp | `&w=` en cada enlace; el respaldo es la constante `TELEFONO` en `js/main.js` |
 | Enlace de Google Maps | `index.html`, botón *Ver ubicación* |
 | Fecha límite para confirmar | `js/main.js`, constante `LIMITE` (el HTML solo es el respaldo) |
 | Colores | `css/styles.css`, bloque `:root` |
 
 ## Enlaces personalizados de confirmación
 
-Cada invitado recibe su propio enlace con los nombres de su pase en `?g=`:
+Cada invitación lleva su propio enlace con el nombre del pase en `?g=`, cuántas personas
+cubre en `&n=` y el WhatsApp al que se responde en `&w=`:
 
 ```
-https://jpablomf.github.io/wedding-invitation/?g=Ana,Sof%C3%ADa,Juan%20Pablo
+https://jpablomf.github.io/wedding-invitation/?g=Familia%20Mart%C3%ADnez&n=4&w=573235942476
 ```
 
-Con ese parámetro la sección *Confirmar asistencia* saluda por su nombre, muestra una
-casilla por persona y arma el mensaje de WhatsApp con quién asiste y quién no. Sin él la
-sección funciona como siempre, con el mensaje genérico. El pase lo fija el enlace: no hay
-campo para sumar acompañantes.
+Con esos parámetros la sección *Confirmar asistencia* saluda por el nombre del pase y muestra
+«Invitación válida para 4 personas». Sin ellos la sección funciona igual, con el mensaje
+genérico y el número de respaldo de `js/main.js`.
+
+Hay dos botones: **Aceptar invitación** y **No podremos asistir**. Los dos abren WhatsApp con
+el mensaje ya redactado; el de aceptar termina pidiendo por favor los nombres de quienes
+asistirán, para que el invitado los escriba en el chat antes de enviar. El tamaño del pase lo
+fija el enlace: no hay campo para sumar acompañantes.
 
 La fecha límite para confirmar sale de la constante `LIMITE` en `js/main.js`; cambiarla ahí
 actualiza todos los enlaces ya repartidos. Un enlace puede llevar su propio plazo con
 `&f=AAAA-MM-DD`, por si a alguien se le invita tarde.
 
-Los enlaces se generan desde un CSV —una invitación por línea, un nombre por columna—:
+Los enlaces se generan desde un CSV —una invitación por línea: nombre del pase y cuántas
+personas cubre—:
+
+```
+Familia Martínez,4
+Carolina,1
+Ana y David,2
+```
 
 ```
 python scripts/enlaces.py invitados.csv -o enlaces.txt
-python scripts/enlaces.py invitados.csv --fecha 2026-10-15   # plazo distinto para este lote
+python scripts/enlaces.py invitados.csv --whatsapp 573235942476   # otro número para este lote
+python scripts/enlaces.py invitados.csv --fecha 2026-10-15        # plazo distinto para este lote
 ```
 
 `invitados.csv` y `enlaces.txt` están en `.gitignore`: el repo es público y la lista de
 invitados no tiene por qué estarlo. Por lo mismo el sitio no lleva ninguna lista dentro;
-cada enlace carga solo los nombres de su pase.
+cada enlace carga solo los datos de su pase.
 
 ## Optimizar imágenes nuevas
 

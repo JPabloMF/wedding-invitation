@@ -242,22 +242,28 @@
 
   /* ---------- 5. Confirmación personalizada ---------- */
 
-  // Cada invitado recibe su propio enlace con los nombres de su pase en `?g=`:
+  // Cada invitación recibe su propio enlace con los datos de su pase:
   //
-  //     .../wedding-invitation/?g=Ana,Sof%C3%ADa,Juan%20Pablo
+  //     .../wedding-invitation/?g=Familia%20Mart%C3%ADnez&n=4&w=573235942476
+  //
+  //     g  nombre del pase («Familia Martínez», «Carolina»); se pinta tal cual
+  //     n  cuántas personas cubre la invitación
+  //     w  número de WhatsApp al que se responde (solo dígitos, con indicativo)
   //
   // A propósito no hay una lista de invitados en el repo: el sitio es público, así que
-  // cualquier archivo con los nombres quedaría a la vista de todos. Con los nombres en
-  // la URL cada quien solo ve el suyo y no hay nada que mantener sincronizado.
+  // cualquier archivo con los nombres quedaría a la vista de todos. Con los datos en la
+  // URL cada quien solo ve el suyo y no hay nada que mantener sincronizado.
   // `scripts/enlaces.py` genera los enlaces desde un CSV que no se versiona.
   //
   // El pase lo fija el enlace, no el invitado: no hay campo de «¿cuántos van?», así que
-  // nadie puede sumar acompañantes. Sin el parámetro toda esta parte queda oculta y la
-  // sección se comporta como antes (un solo botón con el mensaje genérico).
+  // nadie puede sumar acompañantes. Quiénes son esas N personas se resuelve en el chat:
+  // el mensaje de «Aceptar invitación» deja una línea pedida por favor para que el
+  // invitado escriba los nombres antes de enviarlo. Sin parámetros el saludo y el pase
+  // quedan ocultos y los dos botones mandan el mensaje genérico.
 
-  var TELEFONO = '573235942476';   // el mismo número que hay detrás de wa.link/dgonhr
-  var MAX_PASE = 12;               // topes defensivos: la URL la puede editar cualquiera
-  var MAX_NOMBRE = 40;
+  var TELEFONO = '573235942476';   // respaldo si el enlace no trae `?w=`; el número de wa.link/dgonhr
+  var MAX_NOMBRE = 60;             // topes defensivos: la URL la puede editar cualquiera
+  var MAX_PERSONAS = 30;
 
   // Fecha límite para confirmar. El valor por defecto vive aquí y no en el HTML: cambiarlo
   // una sola vez actualiza todos los enlaces ya repartidos. `?f=AAAA-MM-DD` lo pisa solo
@@ -268,77 +274,88 @@
                'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
   var rsvpConfirmar = document.getElementById('rsvp-confirm');
-  var rsvpExcusa = document.getElementById('rsvp-decline-link');
-  var rsvpExcusaCaja = document.getElementById('rsvp-decline');
+  var rsvpRechazar = document.getElementById('rsvp-decline');
   var rsvpSaludo = document.getElementById('rsvp-greeting');
-  var rsvpGrupo = document.getElementById('rsvp-guests');
-  var rsvpLista = document.getElementById('rsvp-list');
+  var rsvpPase = document.getElementById('rsvp-pass');
   var rsvpPista = document.getElementById('rsvp-hint');
 
-  var PISTA_NORMAL = rsvpPista ? rsvpPista.textContent : '';
-  var PISTA_VACIA = 'Marca a quien nos acompañe, o avísanos abajo si no podrán venir.';
-
-  function nombresDelEnlace() {
-    var crudo;
+  function parametro(clave) {
     try {
-      crudo = new URLSearchParams(window.location.search).get('g');
+      return new URLSearchParams(window.location.search).get(clave);
     } catch (e) {
-      return [];
+      return null;
     }
-    if (!crudo) return [];
-
-    var nombres = [];
-    crudo.split(',').forEach(function (n) {
-      // Se quitan los caracteres de control: el nombre se pinta con textContent y viaja
-      // codificado al mensaje, pero un salto de línea partiría el texto de WhatsApp.
-      n = n.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
-      if (n && nombres.length < MAX_PASE) nombres.push(n.slice(0, MAX_NOMBRE));
-    });
-    return nombres;
   }
 
-  // «Ana», «Ana y Sofía», «Ana, Sofía y Juan Pablo».
-  function enumerar(lista) {
-    if (lista.length < 2) return lista.join('');
-    return lista.slice(0, -1).join(', ') + ' y ' + lista[lista.length - 1];
+  // El nombre se pinta con textContent y viaja codificado al mensaje, pero un salto de
+  // línea partiría el texto de WhatsApp: se quitan los caracteres de control.
+  function nombreDelPase() {
+    var crudo = parametro('g');
+    if (!crudo) return '';
+    crudo = crudo.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
+    return crudo.slice(0, MAX_NOMBRE);
   }
 
-  function enlaceWhatsapp(texto) {
-    return 'https://wa.me/' + TELEFONO + '?text=' + encodeURIComponent(texto);
+  // Cuántas personas cubre la invitación. Sin `?n=` (o con basura) no se afirma ningún
+  // tamaño: la frase del pase simplemente no se escribe.
+  function personasDelPase() {
+    var crudo = parametro('n');
+    if (!crudo || !/^\d{1,3}$/.test(crudo.trim())) return 0;
+    var n = parseInt(crudo, 10);
+    return n >= 1 && n <= MAX_PERSONAS ? n : 0;
   }
 
-  // El mensaje nombra también a los que no van: así los novios saben de quién ya tienen
-  // respuesta sin cruzarlo contra su lista.
-  //
+  // El número al que se responde. Se valida a dígitos con largo de teléfono
+  // internacional; cualquier otra cosa cae al de siempre, nunca a un enlace roto.
+  function telefonoDelEnlace() {
+    var crudo = parametro('w');
+    if (!crudo) return TELEFONO;
+    crudo = crudo.replace(/\D/g, '');
+    return /^\d{8,15}$/.test(crudo) ? crudo : TELEFONO;
+  }
+
+  function personas(n) {
+    return n + (n === 1 ? ' persona' : ' personas');
+  }
+
+  function enlaceWhatsapp(telefono, texto) {
+    return 'https://wa.me/' + telefono + '?text=' + encodeURIComponent(texto);
+  }
+
   // Sin emoji a propósito. WhatsApp los destroza al entregarle el texto a la app y llegan
   // al chat como rombos con interrogante. Pasó con los tres emoji del mensaje original de
   // wa.link —fuera del BMP, un par suplente en UTF-16 cada uno— y también con un corazón
   // del BMP, así que no es cuestión de elegir mejor el carácter: no hay emoji que aguante
   // ese paso. Las tildes y los «¡» sí llegan bien.
-  function mensaje(pase, asisten) {
-    if (!pase.length) {
-      return asisten === null
-        ? '¡Hola! Lamento avisarte que no podré acompañarte en tu boda. ¡Te deseo lo mejor!'
-        : '¡Hola! ¡Quiero confirmar asistencia a tu boda!';
-    }
+  //
+  // El mensaje de aceptación termina con una línea en blanco pedida por favor: la
+  // invitación ya no conoce los nombres de quienes van —el enlace solo trae el del pase—,
+  // así que los escribe el invitado en el chat antes de enviar.
+  function mensajeAceptar(pase, cuantos) {
+    var plural = cuantos !== 1;
+    var texto = '¡Hola!';
+    if (pase) texto += ' ' + (plural ? 'Somos ' : 'Soy ') + pase + '.';
+    texto += plural
+      ? ' ¡Con mucho gusto confirmamos nuestra asistencia a su boda!'
+      : ' ¡Con mucho gusto confirmo mi asistencia a su boda!';
 
-    var faltan = pase.filter(function (n) { return asisten.indexOf(n) === -1; });
-    var solo = pase.length === 1;
+    if (cuantos) {
+      texto += '\n\n' + (plural ? 'Nuestra' : 'Mi') + ' invitación es válida para ' + personas(cuantos) + '.';
+    }
+    if (plural) {
+      // Un salto si ya se escribió la línea del pase, dos si el mensaje venía de corrido.
+      texto += (cuantos ? '\n' : '\n\n') + 'Por favor, escribe aquí los nombres de quienes asistirán:\n';
+    }
+    return texto;
+  }
 
-    if (!asisten.length) {
-      return solo
-        ? '¡Hola! Soy ' + pase[0] + '. Lamento avisarte que no podré acompañarte en tu boda. ¡Te deseo lo mejor!'
-        : '¡Hola! Lamentamos avisarte que no podremos acompañarte en tu boda: ' + enumerar(pase) + '. ¡Te deseamos lo mejor!';
-    }
-    if (solo) {
-      return '¡Hola! Soy ' + pase[0] + '. ¡Quiero confirmar mi asistencia a tu boda!';
-    }
-
-    var texto = '¡Hola! ¡Quiero confirmar asistencia a tu boda!\n\n';
-    texto += (asisten.length === 1 ? 'Asistirá: ' : 'Asistirán: ') + enumerar(asisten);
-    if (faltan.length) {
-      texto += '\n' + (faltan.length === 1 ? 'No podrá asistir: ' : 'No podrán asistir: ') + enumerar(faltan);
-    }
+  function mensajeRechazar(pase, cuantos) {
+    var plural = cuantos !== 1;
+    var texto = '¡Hola!';
+    if (pase) texto += ' ' + (plural ? 'Somos ' : 'Soy ') + pase + '.';
+    texto += plural
+      ? ' Lamentamos mucho avisarles que no podremos acompañarlos en su boda. ¡Les deseamos lo mejor y que sea un día hermoso!'
+      : ' Lamento mucho avisarles que no podré acompañarlos en su boda. ¡Les deseo lo mejor y que sea un día hermoso!';
     return texto;
   }
 
@@ -348,11 +365,8 @@
     var salida = document.getElementById('rsvp-deadline');
     if (!salida) return;
 
-    var crudo = LIMITE;
-    try {
-      var param = new URLSearchParams(window.location.search).get('f');
-      if (param) crudo = param.trim();
-    } catch (e) {}
+    var param = parametro('f');
+    var crudo = param ? param.trim() : LIMITE;
 
     var partes = /^(\d{4})-(\d{2})-(\d{2})$/.exec(crudo);
     if (!partes) return;
@@ -369,99 +383,39 @@
     salida.textContent = texto;
   }
 
-  // El aviso vive en una región `aria-live`: reescribirlo con el mismo texto haría que
-  // el lector de pantalla lo repitiera en cada cambio de casilla.
-  function pista(texto) {
-    if (rsvpPista && rsvpPista.textContent !== texto) rsvpPista.textContent = texto;
-  }
-
   function confirmacion() {
-    if (!rsvpConfirmar) return;
+    if (!rsvpConfirmar || !rsvpRechazar) return;
 
-    var pase = nombresDelEnlace();
+    var pase = nombreDelPase();
+    var cuantos = personasDelPase();
+    var telefono = telefonoDelEnlace();
+    var plural = cuantos !== 1;   // sin `?n=` se habla en plural: no se sabe cuántos son
 
-    // Sin `?g=` el botón conserva el mensaje genérico; el enlace de excusa se muestra
-    // igual, porque la ausencia también hay que poder avisarla.
-    if (!pase.length) {
-      rsvpConfirmar.href = enlaceWhatsapp(mensaje([], []));
-      if (rsvpExcusa) rsvpExcusa.href = enlaceWhatsapp(mensaje([], null));
-      if (rsvpExcusaCaja) {
-        rsvpExcusaCaja.hidden = false;
-        rsvpExcusa.textContent = 'No podré acompañarlos';
-      }
-      return;
-    }
-
-    var solo = pase.length === 1;
-
-    if (rsvpSaludo) {
-      rsvpSaludo.textContent = solo
-        ? pase[0] + ', tenemos un lugar reservado para ti.'
-        : enumerar(pase) + ', tenemos ' + pase.length + ' lugares reservados para ustedes.';
+    if (pase && rsvpSaludo) {
+      // textContent y nunca innerHTML: el nombre viene de la URL y la edita cualquiera.
+      rsvpSaludo.textContent = !plural
+        ? pase + ', tenemos un lugar reservado para ti.'
+        : cuantos
+          ? pase + ', tenemos ' + cuantos + ' lugares reservados para ustedes.'
+          : pase + ', tenemos un lugar reservado para ustedes.';
       rsvpSaludo.hidden = false;
     }
 
-    if (rsvpExcusaCaja && rsvpExcusa) {
-      rsvpExcusa.textContent = solo ? 'No podré acompañarlos' : 'No podremos acompañarlos';
-      rsvpExcusa.href = enlaceWhatsapp(mensaje(pase, []));
-      rsvpExcusaCaja.hidden = false;
+    if (cuantos && rsvpPase) {
+      // Sin punto final: la línea va en versalitas y ahí el punto se lee como suciedad.
+      rsvpPase.textContent = 'Invitación válida para ' + personas(cuantos);
+      rsvpPase.hidden = false;
     }
 
-    // Con un solo nombre no hay nada que elegir: el saludo y el botón bastan.
-    if (solo) {
-      rsvpConfirmar.href = enlaceWhatsapp(mensaje(pase, pase));
-      return;
+    // Con más de una persona el mensaje sale con la línea de nombres por completar: el
+    // aviso lo anuncia antes de salir a WhatsApp.
+    if (rsvpPista && plural) {
+      rsvpPista.textContent = 'Se abre WhatsApp: escribe ahí los nombres de quienes asistirán y envía el mensaje.';
     }
 
-    var casillas = [];
-    pase.forEach(function (nombre, i) {
-      var fila = document.createElement('label');
-      fila.className = 'rsvp__guest';
-
-      var casilla = document.createElement('input');
-      casilla.type = 'checkbox';
-      casilla.checked = true;   // la mayoría confirma a todos: un toque, no tres
-      casilla.id = 'rsvp-guest-' + i;
-
-      var caja = document.createElement('span');
-      caja.className = 'rsvp__box';
-      caja.setAttribute('aria-hidden', 'true');
-
-      var texto = document.createElement('span');
-      texto.className = 'rsvp__name';
-      texto.textContent = nombre;   // nunca innerHTML: el nombre viene de la URL
-
-      fila.appendChild(casilla);
-      fila.appendChild(caja);
-      fila.appendChild(texto);
-      rsvpLista.appendChild(fila);
-      casillas.push(casilla);
-    });
-    rsvpGrupo.hidden = false;
-
-    function sincronizar() {
-      var asisten = pase.filter(function (n, i) { return casillas[i].checked; });
-
-      if (asisten.length) {
-        rsvpConfirmar.href = enlaceWhatsapp(mensaje(pase, asisten));
-        rsvpConfirmar.removeAttribute('aria-disabled');
-        pista(PISTA_NORMAL);
-      } else {
-        // El botón conserva su `href` para seguir siendo enfocable —quitarlo lo sacaría
-        // del recorrido del teclado justo cuando hace falta anunciarlo deshabilitado—,
-        // pero apunta al mensaje de excusa: el click normal se cancela más abajo y un
-        // «abrir en pestaña nueva» tampoco puede mandar una confirmación en falso.
-        rsvpConfirmar.href = enlaceWhatsapp(mensaje(pase, []));
-        rsvpConfirmar.setAttribute('aria-disabled', 'true');
-        pista(PISTA_VACIA);
-      }
-    }
-
-    rsvpLista.addEventListener('change', sincronizar);
-    rsvpConfirmar.addEventListener('click', function (ev) {
-      if (rsvpConfirmar.getAttribute('aria-disabled') === 'true') ev.preventDefault();
-    });
-    sincronizar();
+    rsvpConfirmar.href = enlaceWhatsapp(telefono, mensajeAceptar(pase, cuantos));
+    rsvpRechazar.href = enlaceWhatsapp(telefono, mensajeRechazar(pase, cuantos));
+    rsvpRechazar.textContent = plural ? 'No podremos asistir' : 'No podré asistir';
   }
 
   fechaLimite();
