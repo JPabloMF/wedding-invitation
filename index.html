@@ -268,9 +268,20 @@
     <div class="wrap reveal">
       <p class="kicker">Te esperamos</p>
       <h2 class="section__title" id="rsvp-title">Confirmar asistencia</h2>
-      <p class="rsvp__text">Agradecemos que confirmes tu asistencia antes del <strong>30 de septiembre</strong>. De no obtener respuesta de tu parte se tomará como rechazada la asistencia.</p>
-      <a class="btn btn--lg" href="https://wa.link/dgonhr" target="_blank" rel="noopener">Confirmar asistencia</a>
-      <p class="rsvp__hint">Se abre WhatsApp para responderle a los novios.</p>
+      <!-- Saludo y lista de acompañantes: los pinta js/main.js con los nombres que traiga
+           el enlace en `?g=` (ver el bloque «Confirmación personalizada» de js/main.js).
+           Sin ese parámetro se quedan ocultos y la sección funciona como siempre.
+           El `href` de wa.link es el respaldo sin JavaScript: el script lo reemplaza por
+           un enlace de wa.me con el mensaje ya redactado. -->
+      <p class="rsvp__greeting" id="rsvp-greeting" hidden></p>
+      <p class="rsvp__text">Agradecemos que confirmes tu asistencia antes del <strong id="rsvp-deadline">30 de septiembre</strong>. De no obtener respuesta de tu parte se tomará como rechazada la asistencia.</p>
+      <fieldset class="rsvp__guests" id="rsvp-guests" hidden>
+        <legend class="rsvp__legend">¿Quiénes nos acompañan?</legend>
+        <div class="rsvp__list" id="rsvp-list"></div>
+      </fieldset>
+      <a class="btn btn--lg" id="rsvp-confirm" href="https://wa.link/dgonhr" target="_blank" rel="noopener">Confirmar asistencia</a>
+      <p class="rsvp__decline" id="rsvp-decline" hidden><a id="rsvp-decline-link" href="https://wa.link/dgonhr" target="_blank" rel="noopener">No podremos acompañarlos</a></p>
+      <p class="rsvp__hint" id="rsvp-hint" aria-live="polite">Se abre WhatsApp para responderle a los novios.</p>
     </div>
   </section>
 

@@ -27,10 +27,38 @@ python -m http.server 8000
 | --- | --- |
 | Fecha y hora del conteo | `js/main.js`, variable `objetivo` (hora de Colombia, UTC−5) |
 | Horas del itinerario | `index.html`, sección `<ol class="timeline">` |
-| Enlace de WhatsApp | `index.html`, botón *Confirmar asistencia* (`https://wa.link/dgonhr`) |
+| Número de WhatsApp | `js/main.js`, constante `TELEFONO` (y el `href` de respaldo en `index.html`) |
 | Enlace de Google Maps | `index.html`, botón *Ver ubicación* |
-| Fecha límite para confirmar | `index.html`, párrafo `.rsvp__text` |
+| Fecha límite para confirmar | `js/main.js`, constante `LIMITE` (el HTML solo es el respaldo) |
 | Colores | `css/styles.css`, bloque `:root` |
+
+## Enlaces personalizados de confirmación
+
+Cada invitado recibe su propio enlace con los nombres de su pase en `?g=`:
+
+```
+https://jpablomf.github.io/wedding-invitation/?g=Ana,Sof%C3%ADa,Juan%20Pablo
+```
+
+Con ese parámetro la sección *Confirmar asistencia* saluda por su nombre, muestra una
+casilla por persona y arma el mensaje de WhatsApp con quién asiste y quién no. Sin él la
+sección funciona como siempre, con el mensaje genérico. El pase lo fija el enlace: no hay
+campo para sumar acompañantes.
+
+La fecha límite para confirmar sale de la constante `LIMITE` en `js/main.js`; cambiarla ahí
+actualiza todos los enlaces ya repartidos. Un enlace puede llevar su propio plazo con
+`&f=AAAA-MM-DD`, por si a alguien se le invita tarde.
+
+Los enlaces se generan desde un CSV —una invitación por línea, un nombre por columna—:
+
+```
+python scripts/enlaces.py invitados.csv -o enlaces.txt
+python scripts/enlaces.py invitados.csv --fecha 2026-10-15   # plazo distinto para este lote
+```
+
+`invitados.csv` y `enlaces.txt` están en `.gitignore`: el repo es público y la lista de
+invitados no tiene por qué estarlo. Por lo mismo el sitio no lleva ninguna lista dentro;
+cada enlace carga solo los nombres de su pase.
 
 ## Optimizar imágenes nuevas
 

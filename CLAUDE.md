@@ -155,6 +155,47 @@ pequeños, borrosos y pálidos, para dar profundidad y no competir con el texto.
 la capa va `display: none` — la regla global deja las animaciones en .001 ms, que los congelaría a
 media caída— y `lluviaDePetalos()` ni siquiera crea los nodos.
 
+**Confirmación personalizada.** Los nombres del pase viajan en la URL (`?g=Ana,Sof%C3%ADa,Juan%20Pablo`)
+y `confirmacion()` en `js/main.js` arma con ellos el saludo, una casilla por persona y el
+`href` de WhatsApp. **No hay ninguna lista de invitados en el repo, y no debe haberla**: el sitio
+es público y cualquier archivo con los nombres quedaría a la vista. `scripts/enlaces.py` genera los
+enlaces desde un CSV que `.gitignore` excluye.
+
+El botón tiene que apuntar a `wa.me/<TELEFONO>` y no a `wa.link/dgonhr`: el acortador trae su
+propio `?text=` fijo y no admite un mensaje construido. El `href` de wa.link que queda en el HTML
+es solo el respaldo sin JavaScript; el script lo reemplaza siempre. `TELEFONO` en `js/main.js` es
+el número que hay detrás de ese acortador.
+
+Detalles que hay que respetar:
+
+- **El mensaje no lleva emoji, y no hay que volver a ponerlos.** WhatsApp los destroza al
+  entregarle el texto a la app y llegan al chat como rombos con interrogante. Se probó con los
+  tres emoji del mensaje original de `wa.link` —fuera del BMP, un par suplente en UTF-16 cada
+  uno— y después con un corazón del BMP (U+2764 + U+FE0F): los dos se rompen igual, así que no
+  es cuestión de elegir mejor el carácter. Las tildes y los «¡» sí llegan bien.
+- Los nombres se pintan con `textContent`, nunca con `innerHTML`: vienen de la URL y la edita
+  cualquiera. Por lo mismo `nombresDelEnlace()` quita los caracteres de control —un salto de
+  línea partiría el texto del mensaje— y topa la lista a `MAX_PASE` nombres de `MAX_NOMBRE`
+  caracteres.
+- El mensaje nombra también a los ausentes: así los novios saben de quién ya tienen respuesta sin
+  cruzarlo contra su lista. Por eso existe el enlace «No podremos acompañarlos», que manda la
+  excusa completa — sin él, el que no va simplemente no responde.
+- Con las casillas vacías el botón no se deshabilita con `aria-disabled` a secas: conserva el
+  `href` (quitarlo lo saca del recorrido del teclado) y lo apunta al mensaje de excusa, para que
+  un «abrir en pestaña nueva» no pueda mandar una confirmación en falso. El click normal se
+  cancela.
+- El saludo, el grupo de casillas y el enlace de excusa nacen con `hidden` en el HTML. Lo sostiene
+  `[hidden]{ display: none !important }` en `css/styles.css`; sin ese `!important` cualquier
+  `display` que se le ponga después a `.rsvp__guests` o `.rsvp__list` los descubriría sin
+  parámetro.
+- Con un solo nombre no se pintan casillas —no hay nada que elegir—, solo el saludo y el botón.
+- **La fecha límite para confirmar vive en la constante `LIMITE` de `js/main.js`, no en el HTML.**
+  Es la misma para todos: si viviera solo en el enlace habría que reenviarlos todos para
+  cambiarla. `?f=AAAA-MM-DD` la pisa por invitación (alguien invitado tarde con otro plazo), y
+  `fechaLimite()` la valida armando la fecha en UTC y comparándola de vuelta —`Date` corregiría
+  en silencio un 31 de febrero—. Si no llega o viene mal escrita se queda el texto del HTML: ahí
+  nunca puede aparecer un hueco ni un «Invalid Date».
+
 **Cuenta regresiva.** Anclada a `2026-11-21T16:00:00-05:00` en `js/main.js` (hora de Colombia fija,
 para que el conteo sea igual en cualquier huso). El aviso para lectores de pantalla se emite una vez
 por minuto, no cada segundo. Al llegar a cero se detiene el intervalo y cambia el título de la sección.

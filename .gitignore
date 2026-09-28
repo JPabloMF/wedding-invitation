@@ -1,0 +1,4 @@
+# La lista de invitados no se versiona: el repo es público.
+# scripts/enlaces.py la lee de aquí para generar los enlaces personalizados.
+invitados.csv
+enlaces.txt
