@@ -280,8 +280,7 @@ del `<head>` la referencian con **URL absoluta** (`https://jpablomf.github.io/we
 los rastreadores no resuelven rutas relativas. Si se cambia el dominio hay que actualizar `og:url`,
 `canonical` y las tres URLs de imagen a la vez.
 
-`assets/intro2.mp4` es el original vigente del video de apertura (`assets/intro.mp4` es el de la
-versión anterior, ya sin uso). La página carga `assets/opt/intro.mp4`, que es ese original
+`assets/intro2.mp4` es el original vigente del video de apertura. La página carga `assets/opt/intro.mp4`, que es ese original
 recomprimido con ffmpeg y con el lienzo extendido a 1080×2400 — 7,5 MB (12 Mbps, imposible desde
 datos móviles) bajan a 2,2 MB (~3,5 Mbps):
 
@@ -354,8 +353,6 @@ listas («ellos: traje…, ellas: vestido…»), el `alt` era el único acceso a
 lectores de pantalla; la lámina actual ya no las trae y esa información no está en ninguna parte
 de la página, solo el «Formal» y la nota del blanco.
 
-`vestido.webp` y `traje.webp` son recortes de una versión anterior de la lámina y ya no se usan.
-
 Los florales venían de PNG con transparencia; cuantizarlos con paleta dejaba un rectángulo visible
 alrededor de las flores — por eso WebP y no PNG reducido.
 
@@ -404,8 +401,6 @@ Medidos en el navegador, sin corregir todavía:
 - **Contraste bajo.** Texto blanco sobre el caramelo del botón: 2,25:1. Las etiquetas doradas
   pequeñas (`--tan-deep` #A5813F): 3,2–3,4:1. Alternativas verificadas: tinta #4A4034 sobre el
   caramelo actual da 4,51:1; `--tan-deep` en #836327 sube las etiquetas a 5,2:1 sobre crema.
-- `assets/opt/pareja.webp` y `pareja.jpg` quedaron sin uso desde que la vista previa al compartir
-  pasó a `assets/opt/og-cover.jpg`.
 
 ## Diseño
 
