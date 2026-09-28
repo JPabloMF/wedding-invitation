@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Generar enlace — Juan Pablo &amp; Juliana</title>
+
+<!-- Herramienta interna: arma el enlace personalizado de una invitación. No es parte de
+     la invitación y no debe aparecer en buscadores. Aquí NO se guarda ninguna lista: los
+     datos viven solo en el campo mientras se copia el enlace. Para un lote completo está
+     `scripts/enlaces.py`, que lee un CSV que no se versiona. -->
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="favicon.ico" sizes="32x32" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml" />
+<link rel="preload" href="fonts/Merriweather.woff2" as="font" type="font/woff2" crossorigin />
+
+<style>
+@font-face{
+  font-family: "Merriweather";
+  src: url("fonts/Merriweather.woff2") format("woff2-variations"),
+       url("fonts/Merriweather.woff2") format("woff2");
+  font-weight: 300 900;
+  font-stretch: 87% 112%;
+  font-display: swap;
+}
+
+/* Los mismos tokens de css/styles.css: es la misma marca, aunque no sea la misma página. */
+:root{
+  --sage-deep: #7C9A5E;
+  --cream:     #FBF8F2;
+  --cream-warm:#F7F2E9;
+  --tan:       #C9A876;
+  --tan-deep:  #A5813F;
+  --ink:       #4A4034;
+  --ink-soft:  #6E6353;
+  --serif: "Merriweather", "Iowan Old Style", Georgia, serif;
+  --ease: cubic-bezier(.22,.68,.28,1);
+}
+
+*, *::before, *::after{ box-sizing: border-box; }
+
+body{
+  margin: 0;
+  padding: clamp(1.5rem, 5vw, 3.5rem) 1.25rem 4rem;
+  background: linear-gradient(180deg, #E9F0DA 0%, var(--cream-warm) 38%, var(--cream) 100%);
+  min-height: 100vh;
+  color: var(--ink);
+  font-family: var(--serif);
+  font-weight: 300;
+  font-size: 1rem;
+  line-height: 1.7;
+  font-optical-sizing: auto;
+}
+
+.hoja{
+  width: min(100%, 40rem);
+  margin-inline: auto;
+}
+
+header{ text-align: center; margin-bottom: 2.4rem; }
+.kicker{
+  margin: 0;
+  font-size: 1.1rem;
+  letter-spacing: .3em;
+  text-indent: .3em;
+  text-transform: lowercase;
+  font-variant: small-caps;
+  color: var(--tan-deep);
+}
+h1{
+  margin: .15em 0 .35em;
+  font-weight: 400;
+  font-size: clamp(1.8rem, 1.3rem + 2.2vw, 2.4rem);
+  line-height: 1.2;
+}
+header p{ margin: 0 auto; max-width: 30rem; color: var(--ink-soft); font-size: .96rem; }
+
+form{
+  display: grid;
+  gap: 1.5rem;
+  padding: clamp(1.4rem, 4vw, 2.2rem);
+  background: rgba(255,255,255,.62);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(165,129,63,.22), 0 18px 45px -30px rgba(74,64,52,.55);
+}
+
+.campo{ display: grid; gap: .45rem; }
+.campo label{
+  font-size: .76rem;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-transform: uppercase;
+  color: var(--tan-deep);
+}
+.campo .ayuda{ font-size: .84rem; color: var(--ink-soft); line-height: 1.5; }
+
+input{
+  width: 100%;
+  min-height: 48px;
+  padding: .6em .85em;
+  border: 0;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(165,129,63,.4);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 300;
+}
+input:focus-visible, button:focus-visible, a:focus-visible{
+  outline: 2px solid var(--tan-deep);
+  outline-offset: 3px;
+}
+/* El aviso solo se pinta cuando el campo trae algo que el sitio no sabría leer. */
+input[aria-invalid="true"]{ box-shadow: inset 0 0 0 2px #B4552F; }
+.error{ font-size: .84rem; color: #9B4526; }
+.error:empty{ display: none; }
+
+.dos{ display: grid; gap: 1.5rem; }
+@media (min-width: 30rem){ .dos{ grid-template-columns: 1fr 1fr; } }
+
+/* ---------- Resultado ---------- */
+
+.salida{
+  margin-top: 2.2rem;
+  padding: clamp(1.2rem, 4vw, 1.8rem);
+  background: rgba(255,255,255,.62);
+  border-radius: 4px;
+  box-shadow: inset 0 0 0 1px rgba(165,129,63,.22);
+}
+.salida h2{
+  margin: 0 0 .8rem;
+  font-size: .76rem;
+  font-weight: 400;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-transform: uppercase;
+  color: var(--tan-deep);
+}
+/* El enlace se muestra en una caja de texto y no en un <p>: así se puede seleccionar a
+   mano si el portapapeles falla (pasa en http:// sin localhost, donde no hay clipboard). */
+#enlace{
+  min-height: 72px;
+  padding: .7em .85em;
+  font-size: .92rem;
+  line-height: 1.5;
+  word-break: break-all;
+  white-space: pre-wrap;
+  resize: vertical;
+  width: 100%;
+  border: 0;
+  border-radius: 2px;
+  background: #fff;
+  box-shadow: inset 0 0 0 1px rgba(165,129,63,.4);
+  color: var(--ink);
+  font-family: inherit;
+  font-weight: 300;
+}
+
+.acciones{
+  display: grid;
+  gap: .8rem;
+  margin-top: 1.2rem;
+}
+@media (min-width: 30rem){ .acciones{ grid-template-columns: 1fr 1fr; } }
+
+.btn{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  padding: .85em 1.6em;
+  border: 0;
+  border-radius: 2px;
+  background: linear-gradient(160deg, var(--tan) 0%, #BE9A63 100%);
+  color: #fff;
+  font-family: inherit;
+  font-size: .82rem;
+  font-weight: 400;
+  letter-spacing: .17em;
+  text-indent: .17em;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform .3s var(--ease), background .3s var(--ease);
+}
+.btn:hover{ background: linear-gradient(160deg, #BB9257 0%, var(--tan-deep) 100%); transform: translateY(-2px); }
+.btn--ghost{
+  background: transparent;
+  color: var(--ink-soft);
+  box-shadow: inset 0 0 0 1px rgba(165,129,63,.45);
+}
+.btn--ghost:hover{
+  background: rgba(251,248,242,.8);
+  color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--tan-deep);
+}
+
+.aviso{
+  margin: 1rem 0 0;
+  min-height: 1.5em;
+  font-size: .86rem;
+  color: var(--sage-deep);
+}
+
+.nota{
+  margin: 2rem auto 0;
+  max-width: 34rem;
+  font-size: .86rem;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  text-align: center;
+}
+.nota code{
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: .92em;
+}
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation-duration: .001ms !important; transition-duration: .001ms !important; }
+}
+</style>
+</head>
+<body>
+
+<div class="hoja">
+
+  <header>
+    <p class="kicker">Herramienta interna</p>
+    <h1>Generar enlace de invitación</h1>
+    <p>Llena los datos del pase y copia el enlace para enviarlo por WhatsApp. Cada enlace
+       lleva sus propios datos: aquí no se guarda ninguna lista de invitados.</p>
+  </header>
+
+  <form id="form" novalidate>
+    <div class="campo">
+      <label for="g">Nombre del pase</label>
+      <input type="text" id="g" name="g" maxlength="60" autocomplete="off"
+             placeholder="Familia Martínez" aria-describedby="g-ayuda g-error" />
+      <p class="ayuda" id="g-ayuda">Como aparecerá en el saludo: «Familia Martínez, tenemos…».
+         Máximo 60 caracteres.</p>
+      <p class="error" id="g-error" role="alert"></p>
+    </div>
+
+    <div class="dos">
+      <div class="campo">
+        <label for="n">Personas</label>
+        <input type="number" id="n" name="n" min="1" max="30" step="1" inputmode="numeric"
+               placeholder="4" aria-describedby="n-ayuda n-error" />
+        <p class="ayuda" id="n-ayuda">Cuántas personas cubre la invitación (1 a 30).</p>
+        <p class="error" id="n-error" role="alert"></p>
+      </div>
+
+      <div class="campo">
+        <label for="f">Fecha límite</label>
+        <input type="date" id="f" name="f" aria-describedby="f-ayuda f-error" />
+        <p class="ayuda" id="f-ayuda">Solo si este pase lleva un plazo distinto del general.</p>
+        <p class="error" id="f-error" role="alert"></p>
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="w">WhatsApp de respuesta</label>
+      <input type="tel" id="w" name="w" inputmode="tel" autocomplete="off"
+             placeholder="573235942476" aria-describedby="w-ayuda w-error" />
+      <p class="ayuda" id="w-ayuda">Con indicativo del país y sin signos (57 = Colombia).
+         En blanco se usa el número que trae la invitación.</p>
+      <p class="error" id="w-error" role="alert"></p>
+    </div>
+
+    <div class="campo">
+      <label for="base">Dirección del sitio</label>
+      <input type="url" id="base" name="base" autocomplete="off"
+             value="https://jpablomf.github.io/wedding-invitation/" aria-describedby="base-ayuda" />
+      <p class="ayuda" id="base-ayuda">Cámbiala solo para probar en local.</p>
+    </div>
+  </form>
+
+  <section class="salida" aria-labelledby="salida-titulo">
+    <h2 id="salida-titulo">Enlace</h2>
+    <!-- readonly y no disabled: así se puede seleccionar y copiar a mano. -->
+    <textarea id="enlace" readonly rows="2" aria-label="Enlace generado"></textarea>
+
+    <div class="acciones">
+      <button class="btn" type="button" id="copiar">Copiar enlace</button>
+      <a class="btn btn--ghost" id="abrir" href="#" target="_blank" rel="noopener">Abrir invitación</a>
+    </div>
+
+    <p class="aviso" id="aviso" role="status" aria-live="polite"></p>
+  </section>
+
+  <p class="nota">Para un lote completo es más rápido
+     <code>python scripts/enlaces.py invitados.csv -o enlaces.txt</code>, que lee un CSV que
+     no se versiona.</p>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // Los mismos topes que aplica js/main.js al leer la URL: si aquí se dejara pasar algo
+  // más ancho, el enlace saldría y la invitación lo ignoraría en silencio.
+  var MAX_NOMBRE = 60;
+  var MAX_PERSONAS = 30;
+
+  var campos = {
+    g: document.getElementById('g'),
+    n: document.getElementById('n'),
+    w: document.getElementById('w'),
+    f: document.getElementById('f'),
+    base: document.getElementById('base')
+  };
+  var salida = document.getElementById('enlace');
+  var abrir = document.getElementById('abrir');
+  var aviso = document.getElementById('aviso');
+
+  function error(clave, texto) {
+    var caja = document.getElementById(clave + '-error');
+    if (caja) caja.textContent = texto || '';
+    if (campos[clave]) {
+      if (texto) campos[clave].setAttribute('aria-invalid', 'true');
+      else campos[clave].removeAttribute('aria-invalid');
+    }
+    return !texto;
+  }
+
+  // El nombre viaja en la URL y de ahí lo lee la invitación: los caracteres de control
+  // partirían el texto del mensaje de WhatsApp, así que se limpian igual que allá.
+  function nombre() {
+    var v = campos.g.value.replace(/[\u0000-\u001F\u007F]/g, ' ').replace(/\s+/g, ' ').trim();
+    if (v.length > MAX_NOMBRE) {
+      v = v.slice(0, MAX_NOMBRE);
+      error('g', 'El sitio recorta a ' + MAX_NOMBRE + ' caracteres; el enlace ya sale recortado.');
+    } else {
+      error('g', '');
+    }
+    return v;
+  }
+
+  function personas() {
+    var v = campos.n.value.trim();
+    if (!v) return error('n', '') && 0;
+    if (!/^\d{1,3}$/.test(v) || +v < 1 || +v > MAX_PERSONAS) {
+      error('n', 'Un número entre 1 y ' + MAX_PERSONAS + '.');
+      return 0;
+    }
+    error('n', '');
+    return +v;
+  }
+
+  function telefono() {
+    var v = campos.w.value.replace(/\D/g, '');
+    if (!v) return error('w', '') && '';
+    if (v.length < 8 || v.length > 15) {
+      error('w', 'Entre 8 y 15 dígitos, con indicativo (por ejemplo 573235942476).');
+      return '';
+    }
+    error('w', '');
+    return v;
+  }
+
+  // El <input type="date"> ya entrega AAAA-MM-DD; el respaldo cubre los navegadores que
+  // lo degradan a texto.
+  function fecha() {
+    var v = campos.f.value.trim();
+    if (!v) return error('f', '') && '';
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+      error('f', 'La fecha va como AAAA-MM-DD.');
+      return '';
+    }
+    error('f', '');
+    return v;
+  }
+
+  function armar() {
+    var base = campos.base.value.trim() || 'https://jpablomf.github.io/wedding-invitation/';
+    if (base.slice(-1) !== '/') base += '/';
+
+    var url = base;
+    var partes = [];
+    var g = nombre();
+    var n = personas();
+    var w = telefono();
+    var f = fecha();
+
+    if (g) partes.push('g=' + encodeURIComponent(g));
+    if (n) partes.push('n=' + n);
+    if (w) partes.push('w=' + w);
+    if (f) partes.push('f=' + f);
+    if (partes.length) url += '?' + partes.join('&');
+
+    salida.value = url;
+    abrir.href = url;
+    return url;
+  }
+
+  Object.keys(campos).forEach(function (clave) {
+    campos[clave].addEventListener('input', function () {
+      aviso.textContent = '';
+      armar();
+    });
+  });
+
+  document.getElementById('copiar').addEventListener('click', function () {
+    var url = armar();
+    // El portapapeles no existe fuera de https:// ni de localhost: si falla, el enlace
+    // queda seleccionado para copiarlo a mano en vez de dejar el botón sin efecto.
+    function aMano() {
+      salida.focus();
+      salida.select();
+      aviso.textContent = 'Selecciona y copia el enlace con Ctrl+C.';
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(function () {
+        aviso.textContent = 'Enlace copiado.';
+      }, aMano);
+    } else {
+      aMano();
+    }
+  });
+
+  armar();
+})();
+</script>
+</body>
+</html>

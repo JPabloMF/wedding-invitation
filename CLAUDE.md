@@ -170,6 +170,12 @@ ellos el saludo, la línea «Invitación válida para N personas» y los dos enl
 cualquier archivo con los nombres quedaría a la vista. `scripts/enlaces.py` genera los enlaces
 desde un CSV que `.gitignore` excluye.
 
+Los enlaces se arman en dos sitios más, y **los tres validan lo mismo**: `generate.html` (un
+enlace a la vez, con formulario) y `scripts/enlaces.py` (un lote desde el CSV). Si cambian los
+topes de `js/main.js` —`MAX_NOMBRE`, `MAX_PERSONAS`, el largo del teléfono— hay que tocar los
+tres, o saldrán enlaces que la invitación ignora en silencio. `generate.html` va con
+`noindex` y no guarda nada: es una herramienta suelta en la raíz, no una página del sitio.
+
 La sección no pregunta quién va: son dos botones, **Aceptar invitación** y **No podremos
 asistir**, cada uno con su mensaje ya redactado. Los nombres de quienes asisten los escribe el
 invitado en el chat — el mensaje de aceptación termina con «Por favor, escribe aquí los nombres

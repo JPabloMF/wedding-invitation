@@ -54,8 +54,12 @@ La fecha límite para confirmar sale de la constante `LIMITE` en `js/main.js`; c
 actualiza todos los enlaces ya repartidos. Un enlace puede llevar su propio plazo con
 `&f=AAAA-MM-DD`, por si a alguien se le invita tarde.
 
-Los enlaces se generan desde un CSV —una invitación por línea: nombre del pase y cuántas
-personas cubre—:
+Para un enlace suelto está `generate.html`: se abre en el navegador, se llenan los cuatro
+campos (`g`, `n`, `w`, `f`) y se copia el enlace ya armado. Valida lo mismo que la
+invitación, así que no deja salir un enlace que el sitio fuera a ignorar.
+
+Para un lote completo, los enlaces se generan desde un CSV —una invitación por línea:
+nombre del pase y cuántas personas cubre—:
 
 ```
 Familia Martínez,4
