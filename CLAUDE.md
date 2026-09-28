@@ -330,12 +330,29 @@ actualizarlos. En el HTML el orden es us1, **us3**, us2 —la del centro es la t
 (`quality=88, alpha_quality=100`) — se pintan entre 22 y 52 px, así que 200 px cubre pantallas
 3x de sobra y los seis juntos pesan ~50 KB.
 
-`assets/dresscode.png` es una lámina ya compuesta (títulos, listas y figuras) y **va tal cual**: el
-cliente pidió expresamente no recortarla ni retocarla. `dresscode.webp` es esa misma imagen a su
-tamaño original, solo cambiada de contenedor (`quality=92`). Cuando el cliente la reemplace hay que
-regenerar el `.webp`, **actualizar los atributos `width`/`height` del `<img>`** —cambia de
-dimensiones entre versiones— y revisar que el `alt` siga describiendo las listas que viven dentro de
-la imagen, porque es el único acceso a ese contenido para lectores de pantalla.
+`assets/dresscode.png` es la lámina del código de vestimenta y **va tal cual**: el cliente pidió
+expresamente no recortarla ni retocarla. La versión vigente (1448x1086) son dos figuras recortadas
+sobre transparencia, sin texto; la anterior era una composición opaca con títulos y listas dentro
+de la imagen. `dresscode.webp` es esa misma imagen a su tamaño original, solo cambiada de
+contenedor, **conservando el alfa**:
+
+```python
+from PIL import Image
+Image.open('assets/dresscode.png').convert('RGBA').save(
+    'assets/opt/dresscode.webp', 'WEBP', quality=92, alpha_quality=100, method=6)
+```
+
+Sin `convert('RGBA')` + `alpha_quality` sale un WebP opaco y aparece un rectángulo blanco sobre
+el verde de la sección. Por lo mismo `.dresscode__board img` ya no lleva borde ni sombra: los dos
+seguían el borde del lienzo —que alrededor de las figuras es casi todo aire, ~313 px transparentes
+a la izquierda— y encuadraban la nada. Si vuelve una lámina opaca, vuelven el borde y la sombra.
+
+Cuando el cliente la reemplace hay que regenerar el `.webp`, **actualizar los atributos
+`width`/`height` del `<img>`** —cambia de dimensiones entre versiones— y reescribir el `alt`
+describiendo lo que la nueva imagen muestre. Ojo con esto último: mientras la lámina traía las
+listas («ellos: traje…, ellas: vestido…»), el `alt` era el único acceso a ese contenido para
+lectores de pantalla; la lámina actual ya no las trae y esa información no está en ninguna parte
+de la página, solo el «Formal» y la nota del blanco.
 
 `vestido.webp` y `traje.webp` son recortes de una versión anterior de la lámina y ya no se usan.
 

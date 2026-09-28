@@ -767,10 +767,12 @@ img.deco--arch{
 .dresscode__board{
   margin: 0;
 }
+/* La lámina es un recorte con transparencia, no una tarjeta: ni marco ni sombra. Los dos
+   seguían el borde del lienzo —que es casi todo aire alrededor de las dos figuras— y
+   dibujaban un rectángulo alrededor de la nada, el mismo problema que tiene candle2.webp
+   con `drop-shadow`. Si algún día vuelve una lámina opaca, vuelven el borde y la sombra. */
 .dresscode__board img{
   width: 100%;
-  border: 1px solid rgba(124,154,94,.35);
-  box-shadow: 0 22px 46px -30px rgba(74,64,52,.5);
 }
 
 .dresscode__note{
