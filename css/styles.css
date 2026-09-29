@@ -932,6 +932,39 @@ img.deco--arch{
   color: var(--ink-soft);
 }
 
+/* Nota de la lluvia de sobres. Es un aparte, no parte del texto de la confirmación, y
+   tiene que llamar la atención sin robársela a los botones: la jerarquía la da el
+   tamaño —la frase va en serif, más grande que el cuerpo de la sección— y no el color,
+   que se queda en la misma tinta. La caja es apenas un velo crema con un filo dorado
+   translúcido sobre el fondo de la sección; con un relleno opaco se leería como una
+   tarjeta pegada encima de la foto. */
+.rsvp__note{
+  max-width: 21rem;
+  margin: 2.4rem auto 0;
+  padding: 1.25rem 1.4rem 1.35rem;
+  border: 1px solid rgba(165, 129, 63, .3);
+  border-radius: 4px;
+  background: rgba(253, 250, 244, .55);
+}
+.rsvp__note-label{
+  display: block;
+  margin-bottom: .5rem;
+  font-family: var(--sans);
+  font-size: .68rem;
+  font-weight: 500;
+  letter-spacing: .2em;
+  text-indent: .2em;
+  text-transform: uppercase;
+  color: var(--tan-deep);
+}
+.rsvp__note-text{
+  display: block;
+  font-size: 1.32rem;
+  line-height: 1.3;
+  letter-spacing: .01em;
+  color: var(--ink);
+}
+
 /* Confirmación personalizada. El saludo y la línea del pase los arma js/main.js con lo
    que traiga el enlace (`?g=` el nombre del pase, `?n=` cuántas personas); en el HTML
    nacen con `hidden`, así que sin esos parámetros la sección se ve exactamente como
